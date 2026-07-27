@@ -323,8 +323,6 @@ section{margin-bottom:26px}
   background:linear-gradient(180deg,rgba(29,37,48,.72),rgba(14,18,24,.35));
   padding:14px 12px 10px;box-shadow:var(--sombra-panel);
 }
-.pagina-equipo .subseccion{margin-bottom:28px}
-.pagina-equipo .subseccion:last-child{margin-bottom:0}
 .nav-tab{min-height:56px}
 @media (min-width:700px){
   body{max-width:760px;padding-left:24px;padding-right:24px}
@@ -338,7 +336,7 @@ section{margin-bottom:26px}
    ============================================================ */
 .pagina-sondeo #cabecera{padding:14px 12px 12px;overflow:hidden;position:relative}
 .pagina-sondeo #cabecera::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(#000,transparent 72%)}
-.sondeo-cab,.sondeo-instrumentos,#perfilGeologico,#telemetria,#recal,#isotopos,#senal{position:relative;z-index:1}
+.sondeo-cab,.sondeo-instrumentos,#perfilGeologico,#telemetria,#recal,#isotopos,#senal,.sondeo-equipo{position:relative;z-index:1}
 .sondeo-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--borde-instrumento);padding:0 0 10px}
 #cabPozo{font-size:10px;color:var(--texto);letter-spacing:.12em;text-align:left!important}
 .sondeo-subtitulo{margin-top:4px;font:9px var(--mono);letter-spacing:.1em;color:var(--tenue)}
@@ -381,6 +379,13 @@ section{margin-bottom:26px}
 #marcadorProfundidad i{position:absolute;left:-1px;top:-4px;width:7px;height:7px;border-radius:50%;background:var(--frio)}
 #marcadorProfundidad b{position:absolute;left:9px;top:-9px;padding:2px 4px;background:#101722;color:var(--frio);font:8px var(--mono);letter-spacing:.04em;white-space:nowrap}
 .perfil-pies{display:flex;justify-content:space-between;margin-top:4px;color:var(--tenue);font:7px var(--mono)}
+.perfil-firma{margin-top:7px;font:8px var(--mono);letter-spacing:.08em;color:var(--calor);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.objetivo-estrato{margin:0 0 14px;padding:11px;border:1px solid rgba(79,195,217,.34);background:linear-gradient(120deg,rgba(12,30,38,.9),rgba(17,23,31,.72));box-shadow:inset 3px 0 0 var(--frio);transition:border-color .3s,box-shadow .3s}
+.objetivo-cab{display:flex;justify-content:space-between;gap:12px;font:8px var(--mono);letter-spacing:.1em;color:var(--tenue)}
+.objetivo-cab span:last-child{color:var(--frio);white-space:nowrap}.objetivo-estrato strong{display:block;margin-top:7px;font:600 12px var(--mono);letter-spacing:.055em;color:var(--texto)}
+.objetivo-estrato p{margin:5px 0 9px;font-size:11px;line-height:1.35;color:var(--tenue)}.objetivo-barra{height:4px;background:rgba(124,139,158,.18);overflow:hidden}.objetivo-barra i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--frio),var(--calor));box-shadow:0 0 8px rgba(79,195,217,.5);transition:width .35s ease}.objetivo-estrato small{display:block;margin-top:8px;font:8px var(--mono);letter-spacing:.06em;color:var(--calor)}
+.objetivo-estrato.objetivo-completado{border-color:rgba(240,162,46,.72);box-shadow:inset 3px 0 0 var(--calor),0 0 20px rgba(240,162,46,.16);animation:objetivo-completado .7s ease-out}.objetivo-completado .objetivo-cab span:last-child{color:var(--calor)}
+@keyframes objetivo-completado{40%{transform:translateY(-2px);filter:brightness(1.3)}100%{transform:translateY(0);filter:brightness(1)}}
 #telemetria{margin:0 0 12px}.tel-cab{margin-bottom:6px}.tel-cab span:last-child{color:var(--tono)}
 #grafica{height:62px;background:rgba(2,6,10,.35);border-color:var(--borde-instrumento)}
 #grafica #areaGrafica{fill:url(#rellenoGrafica);stroke:none}.grafica #linea,#grafica #linea{filter:drop-shadow(0 0 2px var(--tono))}#puntoGrafica{fill:var(--tono);stroke:var(--fondo);stroke-width:1;transition:fill .8s linear}
@@ -407,9 +412,14 @@ section{margin-bottom:26px}
 .muestra-lectura strong{display:block;font:600 13px var(--mono);letter-spacing:.08em;color:var(--texto)}.muestra-lectura>span{display:block;margin-top:3px;color:var(--tenue);font:9px var(--mono);letter-spacing:.04em}
 .muestra-metricas{display:flex;gap:9px;margin-top:7px;flex-wrap:wrap}.muestra-metricas span{font:8px var(--mono);letter-spacing:.05em;color:var(--tenue)}.muestra-metricas b{font-weight:600;color:var(--frio)}.muestra-isotopo.recuperable .muestra-metricas b{color:var(--calor)}
 .muestra-espectro{height:15px;display:flex;align-items:end;gap:3px;margin-top:8px;border-top:1px solid rgba(79,195,217,.14);padding-top:3px}.muestra-espectro i{display:block;flex:1;background:rgba(79,195,217,.3)}.muestra-espectro i:nth-child(1){height:20%}.muestra-espectro i:nth-child(2){height:45%}.muestra-espectro i:nth-child(3){height:32%}.muestra-espectro i:nth-child(4){height:82%}.muestra-espectro i:nth-child(5){height:42%}.muestra-espectro i:nth-child(6){height:100%}.muestra-espectro i:nth-child(7){height:28%}.muestra-espectro i:nth-child(8){height:62%}.muestra-isotopo.recuperable .muestra-espectro i{background:rgba(240,162,46,.52)}
+.muestra-acciones{display:flex;gap:7px;margin-top:10px;align-items:stretch}.muestra-accion{flex:1;padding:8px;border:1px solid rgba(79,195,217,.36);background:rgba(14,29,37,.88);color:var(--texto);font:600 9px var(--mono);letter-spacing:.05em}.muestra-accion small{display:block;margin-top:4px;font:8px var(--mono);color:var(--tenue);letter-spacing:0;line-height:1.25}.muestra-accion.primaria{color:var(--calor);border-color:rgba(240,162,46,.6)}.muestra-activa,.muestra-custodia{display:block;width:100%;font:8px var(--mono);letter-spacing:.06em;color:var(--frio);padding-top:1px}.muestra-custodia{color:var(--tenue)}
 #recal{display:none;position:relative;padding:12px 14px 12px 16px;border-color:rgba(79,195,217,.52);background:linear-gradient(90deg,rgba(79,195,217,.1),rgba(79,195,217,.02));}
 #recal::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--frio)}#recal .protocolo-codigo{display:block;margin-bottom:4px;font:9px var(--mono);letter-spacing:.14em;color:var(--frio)}#recal strong{display:block;font-size:13px;letter-spacing:.04em}#recal small{margin-top:5px;line-height:1.35}
 #cierre .caja{border-color:rgba(240,162,46,.48);background:linear-gradient(160deg,#18202a,#11171f)}#cierre .cierre-cab{color:var(--calor)}
+.delta-detalle{margin:16px 0 12px;border-top:1px solid rgba(79,195,217,.2);border-bottom:1px solid rgba(79,195,217,.2)}
+.delta-linea{display:grid;grid-template-columns:104px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid rgba(79,195,217,.11);font:10px/1.45 var(--mono);color:var(--texto)}
+.delta-linea:last-child{border-bottom:0}.delta-linea strong{font-size:8px;letter-spacing:.09em;color:var(--frio)}.delta-linea span{color:var(--texto)}.delta-linea.base span{color:var(--calor)}.delta-linea.vacia span{color:var(--tenue)}
+.delta-acciones{display:flex;gap:8px}.delta-acciones button{flex:1}.delta-acciones #cierreCancelar{color:var(--tenue);border-color:var(--linea)}
 @media (prefers-reduced-motion:reduce){.muestra-isotopo.recuperable::after{animation:none}}
 
 
@@ -426,7 +436,10 @@ section{margin-bottom:26px}
 .equipo-resumen strong{display:block;margin:5px 0 3px;font:600 clamp(16px,4.5vw,21px) var(--mono);letter-spacing:-.07em;color:var(--frio);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
 .equipo-resumen small{font-size:7px;color:rgba(124,139,158,.78)}
 .subseccion-cab h2{margin-bottom:10px}.subseccion-cab h2 span{color:var(--tono);font-size:8px;letter-spacing:.06em}
-.pagina-equipo .subseccion{margin-bottom:26px}.pagina-equipo .subseccion:last-child{margin-bottom:0}
+.sondeo-equipo{margin:24px -2px 0;padding:15px 2px 0;border-top:1px solid var(--borde-instrumento)}
+.equipo-integrado-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}.equipo-integrado-cab .eyebrow{margin:0;color:var(--tenue)}
+.equipo-integrado-cab h2{margin:4px 0 0;padding:0;border:0;font:600 18px var(--sans);letter-spacing:-.025em;text-transform:none;color:var(--texto)}
+.sondeo-equipo .subseccion{margin-bottom:18px}.sondeo-equipo .subseccion:last-child{margin-bottom:0}
 #selCompra{padding:4px;background:rgba(5,9,13,.36);border:1px solid var(--borde-instrumento);border-radius:11px}
 #selCompra .sel{min-height:38px;border:0;background:transparent;border-radius:7px;font-size:11px}
 #selCompra .sel.activo{background:rgba(79,195,217,.12);box-shadow:inset 0 0 0 1px rgba(79,195,217,.28)}
@@ -439,6 +452,8 @@ section{margin-bottom:26px}
 .ficha.modulo.asequible{border-color:rgba(240,162,46,.38)}.ficha.modulo.asequible::before{background:var(--calor)}
 .ficha.mejora{position:relative;min-height:68px;padding:12px 13px;border-style:solid;border-left:3px solid rgba(79,195,217,.35);background:linear-gradient(100deg,rgba(18,31,39,.9),rgba(22,28,37,.9))}
 .ficha.mejora .nombre{font:600 13px var(--mono);letter-spacing:.03em}.ficha.mejora .detalle{font-size:10px}.ficha.mejora.asequible{border-color:rgba(240,162,46,.62);background:linear-gradient(100deg,rgba(52,39,20,.5),rgba(22,28,37,.94))}
+.equipo-mejoras{border-top:1px solid var(--borde-instrumento);padding-top:9px}
+.alternar-mejoras{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:8px 3px;background:transparent;border:0;color:var(--texto);text-align:left}.alternar-mejoras span{display:flex;align-items:baseline;gap:8px}.alternar-mejoras b{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}.alternar-mejoras small{font:8px var(--mono);letter-spacing:.07em;color:var(--tono)}.alternar-mejoras i{font:20px/1 var(--sans);color:var(--frio);transition:transform .2s ease}.alternar-mejoras[aria-expanded="true"] i{transform:rotate(180deg)}#panelMejoras{padding-top:5px}
 .pagina-sistema section{margin-bottom:20px}.pagina-sistema section:last-child{margin-bottom:0}
 .estado-sistema-panel{padding:11px;border:1px solid var(--borde-instrumento);border-radius:12px;background:linear-gradient(145deg,rgba(12,23,30,.88),rgba(17,23,31,.7))}
 .salud-cab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;font:9px var(--mono);letter-spacing:.1em;color:var(--tenue)}.salud-cab strong{color:var(--frio);font-size:9px}
@@ -514,3 +529,11 @@ section{margin-bottom:26px}
 .vista-no-sondeo .centro-radar,
 .vista-no-sondeo #puntoGrafica,
 .vista-no-sondeo #senal{animation-play-state:paused}
+
+/* FASE 7 · decisiones isotópicas: el primer hallazgo enseña la mecánica,
+   las siguientes firmas se resuelven directamente desde la consola. */
+.tutorial-isotopo{position:fixed;z-index:40;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(3,7,11,.82);backdrop-filter:blur(5px)}.tutorial-isotopo.on{display:flex}.tutorial-caja{width:min(100%,380px);padding:18px;border:1px solid rgba(240,162,46,.62);background:linear-gradient(145deg,#15212a,#0d141b);box-shadow:0 20px 60px rgba(0,0,0,.55)}.tutorial-etiqueta,.tutorial-codigo{font:9px var(--mono);letter-spacing:.12em;color:var(--calor)}.tutorial-codigo{margin-top:8px;color:var(--frio);font-size:12px}.tutorial-caja h2{margin:14px 0 8px;font:600 17px var(--mono);line-height:1.2;color:var(--texto)}.tutorial-caja p{margin:0;color:var(--tenue);font-size:13px;line-height:1.45}.tutorial-caja>small{display:block;margin-top:12px;font:8px var(--mono);letter-spacing:.04em;color:var(--tenue)}.tutorial-acciones{display:grid;gap:8px;margin-top:16px}.tutorial-btn{padding:11px;border:1px solid rgba(79,195,217,.42);background:rgba(14,29,37,.9);color:var(--texto);font:600 10px var(--mono);letter-spacing:.06em}.tutorial-btn.principal{border-color:rgba(240,162,46,.65);color:var(--calor)}.tutorial-btn small{display:block;margin-top:5px;font:8px var(--mono);color:var(--tenue);letter-spacing:0;line-height:1.25}
+.catalogo-panel{margin:0 0 18px;padding:12px;border:1px solid var(--borde-instrumento);background:linear-gradient(145deg,rgba(12,23,30,.82),rgba(17,23,31,.56))}.catalogo-isotopo{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:center;padding:9px 2px;border-top:1px solid var(--linea);opacity:.5}.catalogo-isotopo:first-child{border-top:0}.catalogo-isotopo.descubierto{opacity:1}.catalogo-simbolo{width:30px;height:30px;border:1px solid var(--borde-instrumento);border-radius:50%;display:grid;place-items:center;color:var(--tenue);font:600 12px var(--mono)}.catalogo-isotopo.descubierto .catalogo-simbolo{border-color:var(--frio);color:var(--frio);box-shadow:0 0 10px rgba(79,195,217,.12)}.catalogo-isotopo strong,.catalogo-isotopo span,.catalogo-isotopo small{display:block}.catalogo-isotopo strong{font:600 10px var(--mono);letter-spacing:.06em;color:var(--texto)}.catalogo-isotopo span{margin-top:3px;font:8px var(--mono);color:var(--tenue);letter-spacing:.05em}.catalogo-isotopo small{margin-top:4px;font-size:10px;color:var(--frio);line-height:1.25}
+
+/* Punto 5 · Registro útil: colección, resultados y decisiones en un mismo archivo. */
+.registro-cab{margin-bottom:12px}.registro-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 14px}.registro-resumen>div{padding:10px 7px;border:1px solid var(--borde-instrumento);background:rgba(8,16,22,.72);text-align:center}.registro-resumen span,.registro-resumen small{display:block;font:8px var(--mono);letter-spacing:.055em;color:var(--tenue)}.registro-resumen strong{display:block;margin:5px 0 3px;font:600 13px var(--mono);color:var(--frio);white-space:nowrap}.registro-panel{margin:0 0 18px;padding:12px;border:1px solid var(--borde-instrumento);background:linear-gradient(145deg,rgba(12,23,30,.68),rgba(17,23,31,.4))}.pozo-archivo{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:10px 2px;border-top:1px solid var(--linea)}.pozo-archivo:first-child{border-top:0}.pozo-archivo strong,.pozo-archivo span,.pozo-archivo small{display:block}.pozo-archivo strong{font:600 10px var(--mono);letter-spacing:.07em;color:var(--frio)}.pozo-archivo span,.pozo-archivo small{margin-top:3px;font-size:10px;line-height:1.35;color:var(--tenue)}.pozo-archivo b{font:600 10px var(--mono);color:var(--calor);align-self:start}.pozo-archivo small{grid-column:1/-1}.bitacora-item{display:grid;grid-template-columns:10px 1fr;gap:8px;padding:10px 2px;border-top:1px solid var(--linea)}.bitacora-item:first-child{border-top:0}.bitacora-item>i{width:6px;height:6px;margin-top:5px;border-radius:50%;background:var(--frio);box-shadow:0 0 7px var(--frio)}.bitacora-item.recuperada>i,.bitacora-item.delta>i{background:var(--calor);box-shadow:0 0 7px var(--calor)}.bitacora-item strong,.bitacora-item span,.bitacora-item small{display:block}.bitacora-item strong{font:600 10px var(--mono);letter-spacing:.06em;color:var(--texto)}.bitacora-item span{margin-top:3px;font:8px var(--mono);letter-spacing:.04em;color:var(--frio)}.bitacora-item small{margin-top:4px;font-size:10px;line-height:1.35;color:var(--tenue)}
