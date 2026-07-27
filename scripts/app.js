@@ -359,22 +359,23 @@ function actualizarObjetivoEstrato(prof){
   const siguiente = siguienteObjetivoEstrato();
   const anterior = [...OBJETIVOS_ESTRATO].reverse().find(o=>tieneObjetivoEstrato(o.id));
   if(!siguiente){
-    $('objetivoEstado').textContent = 'EXPEDICIÓN COMPLETADA';
+    $('objetivoEstado').textContent = 'MISIÓN COMPLETADA · 06/06';
     $('objetivoTitulo').textContent = 'TODOS LOS ESTRATOS CARTOGRAFIADOS';
-    $('objetivoDetalle').textContent = 'La referencia central permanece estable hasta cerrar el pozo.';
+    $('objetivoDetalle').textContent = 'Referencia central fijada · pozo estable';
     $('objetivoProgreso').textContent = '6 / 6'; $('objetivoBarra').style.width = '100%';
-    $('objetivoRecompensa').textContent = 'EFECTOS ACTIVOS · ' + (tieneObjetivoEstrato('transicion') ? '+15 % manual' : '') + (tieneObjetivoEstrato('nucleo') ? ' · +10 % producción' : '');
+    $('objetivoRecompensa').textContent = 'EFECTOS ACTIVOS · ' + (tieneObjetivoEstrato('transicion') ? '+15 % MANUAL' : '') + (tieneObjetivoEstrato('nucleo') ? ' · +10 % PRODUCCIÓN' : '');
     $('perfilFirma').textContent = 'PERFIL COMPLETO · REFERENCIA CENTRAL FIJADA';
     return;
   }
   const desde = anterior ? anterior.min : 0;
   const avance = Math.max(0, Math.min(1, (prof - desde) / (siguiente.min - desde)));
-  $('objetivoEstado').textContent = 'OBJETIVO · ' + siguiente.estrato;
+  const orden = String(OBJETIVOS_ESTRATO.indexOf(siguiente) + 1).padStart(2, '0');
+  $('objetivoEstado').textContent = 'MISIÓN ACTIVA · ' + orden + '/06';
   $('objetivoTitulo').textContent = siguiente.titulo;
-  $('objetivoDetalle').textContent = siguiente.detalle;
+  $('objetivoDetalle').textContent = siguiente.firma + ' · ' + siguiente.estrato + ' · ANÁLISIS PENDIENTE';
   $('objetivoProgreso').textContent = fmtMetros(prof) + ' / ' + fmtMetros(siguiente.min) + ' m';
   $('objetivoBarra').style.width = (avance * 100).toFixed(1) + '%';
-  $('objetivoRecompensa').textContent = 'RECOMPENSA · ' + siguiente.recompensa;
+  $('objetivoRecompensa').textContent = siguiente.recompensa.toUpperCase();
   $('perfilFirma').textContent = 'PRÓXIMA FIRMA · ' + siguiente.firma + ' A ' + fmtMetros(siguiente.min) + ' m';
 }
 
@@ -1122,7 +1123,7 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 31;
+const VERSION = 32;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
