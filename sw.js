@@ -10,7 +10,7 @@
 
    Sube el número de CACHE (v2 -> v3 ...) si cambias esta lógica. */
 
-const CACHE = 'nucleo-v13';
+const CACHE = 'nucleo-v14';
 const ARCHIVOS = ['./', './index.html', './styles/app.css', './scripts/app.js', './registro.js', './manifest.webmanifest', './version.json'];
 
 // 1) Instalación: guarda la copia inicial.
