@@ -1,0 +1,12 @@
+# Node
+node_modules/
+
+# Config local del editor
+.claude/
+
+# iOS / Xcode build artifacts (Codemagic los regenera)
+DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+.DS_Store
