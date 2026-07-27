@@ -82,6 +82,15 @@
           <div id="marcadorProfundidad"><i></i><b id="radarProfundidad">0 m</b></div>
         </div>
         <div class="perfil-pies"><span>0 m</span><span>6.371 km</span></div>
+        <div id="perfilFirma" class="perfil-firma">PRÓXIMA FIRMA · FE-57 A 1.000 m</div>
+      </section>
+
+      <section id="objetivoEstrato" class="objetivo-estrato" aria-live="polite">
+        <div class="objetivo-cab"><span id="objetivoEstado">OBJETIVO DE EXPEDICIÓN</span><span id="objetivoProgreso">0 %</span></div>
+        <strong id="objetivoTitulo">LOCALIZAR FIRMA FE-57</strong>
+        <p id="objetivoDetalle">Alcanza 1.000 m para analizar la primera anomalía isotópica.</p>
+        <div class="objetivo-barra"><i id="objetivoBarra"></i></div>
+        <small id="objetivoRecompensa">RECOMPENSA · decisión isotópica disponible</small>
       </section>
 
       <div id="telemetria">
@@ -117,42 +126,72 @@
           </div>
         </div>
         <div class="muestra-espectro" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div id="muestraAcciones" class="muestra-acciones"></div>
       </section>
 
       <button id="recal"></button>
       <div id="isotopos"></div>
-    </header>
-  </section>
 
-  <section class="pagina oculta pagina-equipo" data-pag="equipo">
-    <header class="panel-cab equipo-cab">
-      <div><p class="eyebrow">SECCIÓN 02 · EQUIPO DE SONDEO</p><h1>Configuración de producción</h1></div>
-      <span class="panel-estado"><i></i> EN LÍNEA</span>
+      <section class="sondeo-equipo" aria-labelledby="equipoTitulo">
+        <div class="equipo-integrado-cab">
+          <div>
+            <p class="eyebrow">EQUIPO DE PERFORACIÓN · EN LÍNEA</p>
+            <h2 id="equipoTitulo">Amplía la instalación</h2>
+          </div>
+          <span class="panel-estado"><i></i> ACTIVO</span>
+        </div>
+        <div class="equipo-resumen" aria-label="Resumen de equipo">
+          <div><span>MÓDULOS</span><strong id="totalMod">0</strong><small>INSTALADOS</small></div>
+          <div><span>CAPACIDAD</span><strong id="capacidadEquipo">0 J/s</strong><small>PRODUCCIÓN</small></div>
+          <div><span>MEJORAS</span><strong id="mejorasResumen">0</strong><small>APLICADAS</small></div>
+        </div>
+        <div class="subseccion equipo-modulos">
+          <div class="subseccion-cab"><h2>Módulos instalables <span>COMPRA RÁPIDA</span></h2></div>
+          <div id="selCompra" aria-label="Cantidad de compra">
+            <button class="sel activo" data-n="1">×1</button>
+            <button class="sel" data-n="10">×10</button>
+            <button class="sel" data-n="100">×100</button>
+            <button class="sel" data-n="max">MÁX</button>
+          </div>
+          <div id="modulos"></div>
+        </div>
+        <section class="equipo-mejoras" aria-labelledby="mejorasTitulo">
+          <button id="alternarMejoras" class="alternar-mejoras" aria-expanded="false" aria-controls="panelMejoras">
+            <span><b id="mejorasTitulo">Mejoras de laboratorio</b><small id="mejorasDisponibles">EN ESPERA</small></span>
+            <i aria-hidden="true">⌄</i>
+          </button>
+          <div id="panelMejoras" hidden><div id="mejoras"></div></div>
+        </section>
+      </section>
     </header>
-    <div class="equipo-resumen" aria-label="Resumen de equipo">
-      <div><span>MÓDULOS</span><strong id="totalMod">0</strong><small>INSTALADOS</small></div>
-      <div><span>CAPACIDAD</span><strong id="capacidadEquipo">0 J/s</strong><small>PRODUCCIÓN</small></div>
-      <div><span>MEJORAS</span><strong id="mejorasResumen">0</strong><small>APLICADAS</small></div>
-    </div>
-    <div class="subseccion equipo-modulos">
-      <div class="subseccion-cab"><h2>Módulos instalables <span>TOCAR PARA DESPLEGAR</span></h2></div>
-      <div id="selCompra" aria-label="Cantidad de compra">
-        <button class="sel activo" data-n="1">×1</button>
-        <button class="sel" data-n="10">×10</button>
-        <button class="sel" data-n="100">×100</button>
-        <button class="sel" data-n="max">MÁX</button>
-      </div>
-      <div id="modulos"></div>
-    </div>
-    <div class="subseccion equipo-mejoras">
-      <div class="subseccion-cab"><h2>Mejoras de laboratorio <span id="mejorasDisponibles">EN ESPERA</span></h2></div>
-      <div id="mejoras"></div>
-    </div>
   </section>
 
   <section class="pagina oculta" data-pag="registro">
-    <h2>Registro de perforación</h2>
+    <header class="panel-cab registro-cab">
+      <div><p class="eyebrow">SECCIÓN 02 · ARCHIVO DE EXPEDICIÓN</p><h1>Registro de perforación</h1></div>
+      <span class="panel-estado"><i></i> <span id="registroEstado">EN LÍNEA</span></span>
+    </header>
+    <section class="registro-resumen" aria-label="Resumen de expedición">
+      <div><span>POZOS</span><strong id="registroPozos">0</strong><small>CERRADOS</small></div>
+      <div><span>PROFUNDIDAD</span><strong id="registroProfundidad">0 m</strong><small>RÉCORD</small></div>
+      <div><span>FIRMAS</span><strong id="registroFirmas">0 / 4</strong><small>IDENTIFICADAS</small></div>
+    </section>
+    <section class="catalogo-panel" aria-label="Catálogo de firmas isotópicas">
+      <div class="subseccion-cab"><h2>Catálogo isotópico <span>INVESTIGACIÓN</span></h2></div>
+      <div id="catalogoIsotopos"></div>
+    </section>
+    <section class="registro-panel" aria-label="Historial de pozos">
+      <div class="subseccion-cab"><h2>Historial de pozos <span id="historialPozosEstado">SIN CIERRES</span></h2></div>
+      <div id="historialPozos"></div>
+    </section>
+    <section class="registro-panel" aria-label="Bitácora científica">
+      <div class="subseccion-cab"><h2>Bitácora científica <span id="bitacoraEstado">SEÑALES RELEVANTES</span></h2></div>
+      <div id="bitacoraCientifica"></div>
+    </section>
+    <section class="registro-panel" aria-label="Archivo de profundidad">
+      <div class="subseccion-cab"><h2>Archivo de profundidad <span id="archivoEstado">LORE DESBLOQUEADO</span></h2></div>
     <div id="registroLista"></div>
+    </section>
   </section>
 
   <section class="pagina oculta pagina-sistema" data-pag="sistema">
@@ -203,10 +242,6 @@
     <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
     <span>Sondeo</span>
   </button>
-  <button class="nav-tab" data-pag="equipo" aria-label="Equipo">
-    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
-    <span>Equipo</span>
-  </button>
   <button class="nav-tab" data-pag="registro" aria-label="Registro">
     <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
     <span class="badge" id="regBadge"></span><span>Registro</span>
@@ -225,7 +260,19 @@
   <div class="caja">
     <div class="cierre-cab" id="cierreCab">CIERRE DE POZO</div>
     <div class="cierre-txt" id="cierreTxt"></div>
-    <button id="cierreOk">Emplazar nuevo pozo</button>
+    <div class="delta-detalle" id="cierreDetalle"></div>
+    <div class="delta-acciones"><button id="cierreCancelar">SEGUIR SONDEANDO</button><button id="cierreOk">Emplazar nuevo pozo</button></div>
+  </div>
+</div>
+
+<div id="tutorialIsotopo" class="tutorial-isotopo" role="dialog" aria-modal="true" aria-labelledby="tutorialTitulo">
+  <div class="tutorial-caja">
+    <div id="tutorialEtiqueta" class="tutorial-etiqueta">ANOMALÍA DETECTADA</div>
+    <div id="tutorialCodigo" class="tutorial-codigo">FE-57 · HIERRO</div>
+    <h2 id="tutorialTitulo">Una firma ha interrumpido el sondeo</h2>
+    <p id="tutorialTexto"></p>
+    <div id="tutorialAcciones" class="tutorial-acciones"></div>
+    <small>Las próximas anomalías se gestionan desde la consola.</small>
   </div>
 </div>
 
