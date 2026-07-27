@@ -1,0 +1,516 @@
+:root{
+  --fondo:#0E1218;
+  --capa:#161C25;
+  --capa-alta:#1D2530;
+  --linea:#26313F;
+  --texto:#E6EDF5;
+  --tenue:#7C8B9E;
+  --frio:#4FC3D9;
+  --calor:#F0A22E;
+  --ardiendo:#FF5E3A;
+  --tono:var(--frio);
+  --pulso:3s;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --grid:rgba(130,165,195,.05);
+  --grid2:rgba(130,165,195,.14);
+  --senal-dur:6s;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--fondo);color:var(--texto);font-family:var(--sans);overscroll-behavior:none}
+body{
+  padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 82px);
+  max-width:540px;margin:0 auto;
+  -webkit-user-select:none;user-select:none;
+}
+.eyebrow{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--tenue);font-weight:600;
+}
+
+/* --- aviso de progreso offline --- */
+#offline{
+  display:none;border:1px solid var(--linea);background:var(--capa);
+  border-radius:12px;padding:11px 13px;margin-bottom:16px;
+  font-size:13px;color:var(--tenue);line-height:1.45;
+}
+#offline b{color:var(--calor);font-family:var(--mono);font-weight:600}
+
+/* --- aviso de nueva versión --- */
+#actualiza{
+  display:none;border:1px solid var(--frio);background:var(--capa);
+  border-radius:12px;padding:12px 13px;margin-bottom:16px;cursor:pointer;
+  font-size:13px;color:var(--frio);line-height:1.45;font-weight:600;text-align:center;
+}
+#actualiza:active{background:var(--capa-alta)}
+
+/* --- el núcleo --- */
+#nucleo{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  padding:6px 0 2px;cursor:pointer;
+}
+#anillo{width:200px;height:200px;display:block}
+#anillo .pista{fill:none;stroke:var(--linea);stroke-width:3}
+#anillo .carga{
+  fill:none;stroke:var(--tono);stroke-width:3;stroke-linecap:round;
+  transition:stroke-dashoffset .3s linear,stroke .8s linear;
+}
+#halo{
+  position:absolute;top:31px;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,var(--tono) 0%,transparent 68%);
+  opacity:.16;animation:latido var(--pulso) ease-in-out infinite;pointer-events:none;
+}
+@keyframes latido{0%,100%{transform:scale(.86);opacity:.10}50%{transform:scale(1.06);opacity:.26}}
+#lectura{position:absolute;top:0;height:200px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;pointer-events:none}
+#julios{font-family:var(--mono);font-size:34px;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#prof{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--tenue);
+  font-variant-numeric:tabular-nums;letter-spacing:.03em;margin-top:1px}
+#cabPozo{text-transform:none;font-family:var(--mono)}
+#tasa{font-family:var(--mono);font-size:14px;color:var(--tono);
+  font-variant-numeric:tabular-nums;transition:color .8s linear}
+#restante{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--tenue);margin-top:2px}
+
+/* --- señal de fondo (el 'periodo') --- */
+#senal{
+  position:relative;height:22px;margin:4px 0 6px;overflow:hidden;opacity:.55;
+  background-repeat:repeat-x;background-position:0 center;
+  animation:desliza var(--senal-dur) linear infinite;
+}
+#senal .senal-lbl{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--tenue);
+  background:var(--fondo);padding-right:8px;
+}
+@keyframes desliza{to{background-position:-80px center}}
+
+/* --- indicador de estrato --- */
+#estrato{
+  text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;
+  letter-spacing:.2em;color:var(--tenue);margin:4px 0 2px;
+}
+
+/* --- telemetría / gráfica osciloscopio --- */
+#telemetria{margin:10px 0 22px}
+.tel-cab{display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--tenue);margin-bottom:5px}
+#grafica{width:100%;height:54px;display:block;overflow:visible;
+  border:1px solid var(--linea);border-radius:6px;background:rgba(0,0,0,.18)}
+#grafica path{fill:none;stroke:var(--tono);stroke-width:1.5;stroke-linejoin:round;
+  transition:stroke .8s linear}
+#grafica .base{stroke:var(--linea);stroke-width:1}
+#grafica .rejilla line{stroke:var(--grid2);stroke-width:1;vector-effect:non-scaling-stroke}
+
+/* --- secciones --- */
+h2{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--tenue);
+  font-weight:600;margin:0 0 12px;display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid var(--linea);padding-bottom:8px}
+h2 span{font-family:var(--mono);letter-spacing:0;text-transform:none;font-size:11px}
+section{margin-bottom:26px}
+
+/* --- fichas --- */
+.ficha{
+  width:100%;text-align:left;display:grid;
+  grid-template-columns:1fr auto;gap:2px 10px;align-items:center;
+  background:var(--capa);border:1px solid var(--linea);border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;color:var(--texto);
+  font-family:var(--sans);transition:background .12s,border-color .12s,opacity .2s;
+}
+.ficha:active{background:var(--capa-alta)}
+.ficha[disabled]{opacity:.4}
+.ficha .nombre{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.ficha .detalle{grid-column:1;font-size:11px;color:var(--tenue);font-family:var(--mono);
+  font-variant-numeric:tabular-nums}
+.ficha .precio{grid-row:1/3;font-family:var(--mono);font-size:14px;font-weight:600;
+  text-align:right;font-variant-numeric:tabular-nums}
+.ficha .cant{grid-row:1/3;font-family:var(--mono);font-size:20px;font-weight:600;
+  color:var(--tenue);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.asequible .precio{color:var(--calor)}
+.ficha .precio{white-space:nowrap}
+.ficha.mejora{border-style:dashed}
+
+/* --- selector de cantidad de compra --- */
+#selCompra{display:flex;gap:6px;margin-bottom:10px}
+#selCompra .sel{
+  flex:1;padding:8px 0;border-radius:9px;
+  background:var(--capa);border:1px solid var(--linea);color:var(--tenue);
+  font-family:var(--mono);font-size:12px;font-weight:600;
+}
+#selCompra .sel:active{background:var(--capa-alta)}
+#selCompra .sel.activo{border-color:var(--frio);color:var(--frio);background:var(--capa-alta)}
+
+/* --- glifo animado de cada módulo --- */
+.ficha.modulo{grid-template-columns:28px 1fr auto auto;column-gap:12px}
+.ficha.modulo .glifo{grid-column:1;grid-row:1/3;width:26px;height:26px;
+  color:var(--tenue);display:flex;align-items:center;justify-content:center;
+  transition:color .8s linear,opacity .3s}
+.ficha.modulo .glifo svg{width:100%;height:100%;overflow:hidden}
+.ficha.modulo .nombre{grid-column:2;grid-row:1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ficha .nom-tasa{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--frio);
+  font-variant-numeric:tabular-nums;letter-spacing:0}
+.ficha.modulo .detalle{grid-column:2;grid-row:2}
+.ficha.modulo .cant{grid-column:3;grid-row:1/3}
+.ficha.modulo .precio{grid-column:4;grid-row:1/3}
+.ficha.modulo.activo .glifo{color:var(--tono)}
+.ficha.modulo:not(.activo) .glifo{opacity:.3}
+.ficha.modulo:not(.activo) .glifo .anim,
+.ficha.modulo:not(.activo) .glifo .anim2{animation-play-state:paused}
+
+.glifo .anim,.glifo .anim2{transform-box:fill-box;transform-origin:center}
+@keyframes girar{to{transform:rotate(360deg)}}
+@keyframes latir{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(2px);opacity:1}}
+@keyframes fluir{to{stroke-dashoffset:-8}}
+@keyframes onda{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.55);opacity:0}}
+@keyframes ondular{to{transform:translateX(-6px)}}
+@keyframes nucleo{0%,100%{transform:scale(.8);opacity:.6}50%{transform:scale(1.1);opacity:1}}
+@keyframes parpadeo{0%,100%{opacity:.55}50%{opacity:1}}
+.g-sonda   .anim{transform-origin:center top;animation:latir 1.3s ease-in-out infinite}
+.g-turbina .anim{animation:girar 2.2s linear infinite}
+.g-inter   .anim{animation:fluir 1s linear infinite}
+.g-inter   .anim2{animation:fluir 1s linear infinite reverse}
+.g-bucle   .anim{animation:girar 3s linear infinite}
+.g-pozo    .anim{animation:onda 2s ease-out infinite}
+.g-pozo    .d2{animation-delay:1s}
+.g-manto   .anim{animation:ondular 2.4s linear infinite}
+.g-externo .anim{animation:girar 4s linear infinite}
+.g-interno .anim{animation:nucleo 1.6s ease-in-out infinite}
+.g-plasma  .anim{animation:girar 1.4s linear infinite,parpadeo .6s ease-in-out infinite}
+
+/* --- recalibrar --- */
+#recal{display:none;width:100%;padding:15px;border-radius:12px;
+  background:transparent;border:1px solid var(--frio);color:var(--frio);
+  font-family:var(--sans);font-size:14px;font-weight:600}
+#recal:active{background:rgba(79,195,217,.1)}
+#recal small{display:block;font-weight:400;font-size:11px;opacity:.75;margin-top:3px;
+  font-family:var(--mono)}
+
+/* --- estadísticas --- */
+.stat-fila{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:10px 2px;border-bottom:1px solid var(--linea);font-size:13px;
+}
+.stat-fila:last-child{border-bottom:none}
+.stat-fila .etq{color:var(--tenue)}
+.stat-fila .val{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* --- sincronizar partida --- */
+#secDatos .datos-btn{
+  width:100%;padding:13px 14px;border-radius:12px;margin-bottom:8px;
+  background:var(--capa);border:1px solid var(--linea);color:var(--texto);
+  font-family:var(--sans);font-size:14px;font-weight:600;text-align:left;
+}
+#secDatos .datos-btn:active{background:var(--capa-alta)}
+#secDatos #borrar{color:var(--ardiendo);border-color:rgba(255,94,58,.4)}
+#secDatos #version{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--tenue);text-align:center}
+#secDatos #btnCargar{display:none;border-color:var(--frio);color:var(--frio)}
+#secDatos #datosArea{
+  display:none;width:100%;min-height:72px;margin-bottom:8px;padding:11px 13px;
+  border-radius:12px;background:var(--capa);border:1px solid var(--linea);color:var(--texto);
+  font-family:var(--mono);font-size:12px;line-height:1.4;resize:vertical;
+  -webkit-user-select:text;user-select:text;
+}
+#secDatos #datosMsg{font-size:12px;color:var(--frio);margin-bottom:8px;
+  min-height:1em;font-family:var(--mono);line-height:1.4}
+
+/* --- cabecera compartida --- */
+#cabecera{margin-bottom:6px}
+#recal{margin-bottom:6px}
+#isotopos{text-align:center;font-size:11px;color:var(--tenue);font-family:var(--mono);margin-top:4px}
+
+/* --- páginas --- */
+.pagina.oculta{display:none}
+.vacio{color:var(--tenue);font-size:13px;line-height:1.5;padding:6px 2px}
+
+/* --- barra de navegación inferior --- */
+#navbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;
+  width:100%;max-width:540px;display:flex;z-index:10;
+  background:rgba(14,18,24,.93);border-top:1px solid var(--linea);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+#navbar .nav-tab{
+  position:relative;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:9px 0 8px;background:none;border:none;
+  color:var(--tenue);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.02em;
+}
+#navbar .nav-tab .ic{width:22px;height:22px;display:block}
+#navbar .nav-tab.activo{color:var(--frio)}
+#navbar .nav-tab:active{background:rgba(255,255,255,.05)}
+#navbar .nav-tab .badge{
+  position:absolute;top:5px;left:calc(50% + 6px);
+  min-width:16px;height:16px;padding:0 4px;border-radius:8px;
+  background:var(--ardiendo);color:#fff;font-size:10px;font-weight:700;
+  line-height:16px;text-align:center;display:none;
+}
+#navbar .nav-tab .badge.on{display:block}
+
+/* --- registro de perforación --- */
+.reg-entrada{
+  border:1px solid var(--linea);background:var(--capa);border-radius:12px;
+  padding:12px 14px;margin-bottom:10px;
+}
+.reg-entrada .reg-cab{
+  font-family:var(--mono);font-size:11px;color:var(--frio);
+  letter-spacing:.06em;margin-bottom:7px;
+}
+.reg-entrada .reg-txt{font-size:13px;line-height:1.55;color:var(--texto);white-space:pre-line}
+.reg-entrada.final{border-color:var(--ardiendo);background:rgba(255,94,58,.06)}
+.reg-entrada.final .reg-cab{color:var(--ardiendo)}
+
+/* --- overlay de cierre de pozo --- */
+#cierre{
+  position:fixed;inset:0;z-index:50;display:none;padding:24px;
+  align-items:center;justify-content:center;
+  background:rgba(8,10,14,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+}
+#cierre.on{display:flex}
+#cierre .caja{
+  max-width:420px;width:100%;background:var(--capa);
+  border:1px solid var(--linea);border-radius:14px;padding:20px;
+}
+#cierre .cierre-cab{font-family:var(--mono);font-size:11px;color:var(--tenue);
+  letter-spacing:.1em;margin-bottom:12px}
+#cierre .cierre-txt{font-size:14px;line-height:1.6;color:var(--texto);
+  white-space:pre-line;margin-bottom:20px;font-family:var(--mono)}
+#cierre button{
+  width:100%;padding:14px;border-radius:12px;background:transparent;
+  border:1px solid var(--frio);color:var(--frio);
+  font-family:var(--sans);font-size:14px;font-weight:600;
+}
+#cierre button:active{background:rgba(79,195,217,.1)}
+
+/* --- hitos --- */
+#hitosResumen{color:var(--frio)}
+.hito{border:1px solid var(--linea);border-radius:10px;padding:10px 12px;margin-bottom:8px;
+  opacity:.42;transition:opacity .2s,border-color .2s}
+.hito.logrado{opacity:1;border-color:rgba(79,195,217,.4)}
+.hito .hito-nom{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--tenue)}
+.hito.logrado .hito-nom{color:var(--frio)}
+.hito .hito-desc{font-size:12px;color:var(--tenue);margin-top:3px;line-height:1.4}
+
+/* --- toast de hito --- */
+#hitoToast{
+  position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);z-index:60;
+  transform:translateX(-50%) translateY(-16px);
+  background:var(--capa-alta);border:1px solid var(--frio);color:var(--frio);
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.05em;
+  padding:10px 16px;border-radius:10px;max-width:90%;text-align:center;
+  opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;
+}
+#hitoToast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* --- +N flotante --- */
+.chispa{position:absolute;font-family:var(--mono);font-size:15px;font-weight:600;
+  color:var(--tono);pointer-events:none;animation:subir .7s ease-out forwards}
+@keyframes subir{to{transform:translateY(-46px);opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  #halo{animation:none}.chispa{animation-duration:.01s}
+  .glifo .anim,.glifo .anim2{animation:none}
+}
+
+/* Fase 1 · estructura científica móvil */
+:root{
+  --espacio-1:4px;--espacio-2:8px;--espacio-3:12px;--espacio-4:16px;
+  --radio-panel:12px;--borde-instrumento:rgba(79,195,217,.18);
+  --sombra-panel:0 12px 30px rgba(0,0,0,.18);
+}
+.pagina-sondeo #cabecera{
+  border:1px solid var(--borde-instrumento);border-radius:var(--radio-panel);
+  background:linear-gradient(180deg,rgba(29,37,48,.72),rgba(14,18,24,.35));
+  padding:14px 12px 10px;box-shadow:var(--sombra-panel);
+}
+.pagina-equipo .subseccion{margin-bottom:28px}
+.pagina-equipo .subseccion:last-child{margin-bottom:0}
+.nav-tab{min-height:56px}
+@media (min-width:700px){
+  body{max-width:760px;padding-left:24px;padding-right:24px}
+  #navbar{max-width:760px}
+}
+
+
+/* ============================================================
+   FASE 2 · CONSOLA DE SONDEO PROFUNDO
+   SVG + CSS: no se cargan imágenes ni bibliotecas externas.
+   ============================================================ */
+.pagina-sondeo #cabecera{padding:14px 12px 12px;overflow:hidden;position:relative}
+.pagina-sondeo #cabecera::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.38;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(#000,transparent 72%)}
+.sondeo-cab,.sondeo-instrumentos,#perfilGeologico,#telemetria,#recal,#isotopos,#senal{position:relative;z-index:1}
+.sondeo-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--borde-instrumento);padding:0 0 10px}
+#cabPozo{font-size:10px;color:var(--texto);letter-spacing:.12em;text-align:left!important}
+.sondeo-subtitulo{margin-top:4px;font:9px var(--mono);letter-spacing:.1em;color:var(--tenue)}
+.estado-sistema{display:flex;align-items:center;gap:6px;padding:5px 0 0;white-space:nowrap;color:var(--frio);font:9px var(--mono);letter-spacing:.08em}
+.estado-sistema i{width:6px;height:6px;border-radius:50%;background:var(--frio);box-shadow:0 0 9px var(--frio);animation:indicador 1.8s ease-in-out infinite}
+@keyframes indicador{50%{opacity:.35;box-shadow:none}}
+#senal{margin:8px 0 4px;height:20px}
+#senal .senal-lbl{background:#131923;color:var(--tenue)}
+.sondeo-instrumentos{display:grid;grid-template-columns:minmax(0,1fr) minmax(118px,.72fr);align-items:center;gap:6px 12px}
+#nucleo{padding:0;min-height:212px;isolation:isolate}
+#anillo{width:min(52vw,214px);height:min(52vw,214px);max-width:214px;max-height:214px;filter:drop-shadow(0 0 12px rgba(79,195,217,.12))}
+#anillo .pista{stroke:rgba(79,195,217,.25);stroke-width:2.5}
+#anillo .carga{stroke:url(#arcoRadar);stroke-width:4}
+#anillo .radar-radial{fill:none;stroke:rgba(79,195,217,.12);stroke-width:.7}
+#anillo .marcas-radar path{stroke:rgba(79,195,217,.45);stroke-width:1.4;stroke-linecap:round}
+#radarBarrido{fill:rgba(79,195,217,.10);transform-origin:100px 100px;animation:barrido 5s linear infinite}
+#anillo .centro-radar{fill:var(--tono);filter:drop-shadow(0 0 5px var(--tono))}
+@keyframes barrido{to{transform:rotate(360deg)}}
+#halo{top:31px;width:148px;height:148px;opacity:.13;z-index:-1}
+#lectura{height:min(52vw,214px);max-height:214px;gap:2px}
+.lectura-etiqueta{font:8px var(--mono);letter-spacing:.12em;color:var(--tenue);margin-bottom:2px}
+#julios{font-size:clamp(26px,8vw,34px);line-height:1}
+#prof{order:3;margin-top:3px;color:var(--texto);font-size:12px}
+#tasa{order:2;font-size:13px}
+#restante{order:4;max-width:145px;text-align:center;line-height:1.25;margin-top:4px;font-size:8px}
+.radar-accion{position:absolute;bottom:1px;font:8px var(--mono);letter-spacing:.13em;color:var(--tenue)}
+#instrumentos{display:grid;gap:6px}
+.instrumento{min-height:44px;padding:6px 7px;border-left:2px solid var(--borde-instrumento);background:rgba(5,9,13,.28);display:grid;grid-template-columns:1fr auto;align-content:center;gap:1px 4px}
+.instrumento span,.instrumento small{font:8px var(--mono);letter-spacing:.07em;color:var(--tenue)}
+.instrumento strong{font:600 12px var(--mono);color:var(--texto);font-variant-numeric:tabular-nums;white-space:nowrap}
+.instrumento small{grid-column:1/-1;font-size:7px;opacity:.72}.instrumento.anomalía{border-left-color:var(--calor)}.instrumento.anomalía strong{color:var(--calor)}
+#perfilGeologico{margin:8px 0 12px;padding:8px;border:1px solid var(--borde-instrumento);background:rgba(4,8,12,.32)}
+.perfil-cab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;font:9px var(--mono);letter-spacing:.12em;color:var(--tenue)}
+.perfil-cab strong{font-size:9px;color:var(--tono);text-align:right;letter-spacing:.06em}
+.columna-estratos{height:62px;display:flex;position:relative;overflow:hidden;background:#080c11}
+.capa-geologica{position:relative;flex:1;min-width:0;display:flex;align-items:flex-end;padding:0 2px 3px;border-right:1px solid rgba(255,255,255,.1);overflow:hidden}
+.capa-geologica:last-of-type{border:0}.capa-geologica span{font:7px var(--mono);letter-spacing:.04em;writing-mode:vertical-rl;transform:rotate(180deg);color:rgba(230,237,245,.72);white-space:nowrap}
+.corteza{background:linear-gradient(135deg,#426875,#15333e)}.manto-superior{background:linear-gradient(135deg,#5c5445,#27261e)}.transicion{background:linear-gradient(135deg,#93683a,#43351f)}.manto-inferior{background:linear-gradient(135deg,#673e32,#2e2021)}.nucleo-externo{background:linear-gradient(135deg,#a5562c,#47251f)}.nucleo-interno{background:linear-gradient(135deg,#d48d43,#5b3420)}
+#marcadorProfundidad{position:absolute;left:0;right:0;top:1%;height:0;border-top:1px solid var(--frio);filter:drop-shadow(0 0 3px var(--frio));transition:top .35s ease;pointer-events:none}
+#marcadorProfundidad i{position:absolute;left:-1px;top:-4px;width:7px;height:7px;border-radius:50%;background:var(--frio)}
+#marcadorProfundidad b{position:absolute;left:9px;top:-9px;padding:2px 4px;background:#101722;color:var(--frio);font:8px var(--mono);letter-spacing:.04em;white-space:nowrap}
+.perfil-pies{display:flex;justify-content:space-between;margin-top:4px;color:var(--tenue);font:7px var(--mono)}
+#telemetria{margin:0 0 12px}.tel-cab{margin-bottom:6px}.tel-cab span:last-child{color:var(--tono)}
+#grafica{height:62px;background:rgba(2,6,10,.35);border-color:var(--borde-instrumento)}
+#grafica #areaGrafica{fill:url(#rellenoGrafica);stroke:none}.grafica #linea,#grafica #linea{filter:drop-shadow(0 0 2px var(--tono))}#puntoGrafica{fill:var(--tono);stroke:var(--fondo);stroke-width:1;transition:fill .8s linear}
+#recal{margin-top:2px;border-color:rgba(79,195,217,.55);background:linear-gradient(90deg,rgba(79,195,217,.08),transparent);text-align:left;padding:12px 14px}
+#isotopos{text-align:left;padding-left:2px}
+@media (max-width:355px){.sondeo-instrumentos{grid-template-columns:1fr 108px;gap:7px}.instrumento strong{font-size:11px}.instrumento{padding:5px}.sondeo-subtitulo{font-size:8px}}
+@media (prefers-reduced-motion:reduce){#radarBarrido,.estado-sistema i{animation:none}#marcadorProfundidad{transition:none}}
+
+
+/* ============================================================
+   FASE 3 · MUESTRA ISOTÓPICA Y PROTOCOLO DE RECALIBRACIÓN
+   ============================================================ */
+.muestra-isotopo{margin:2px 0 10px;padding:10px;border:1px solid rgba(79,195,217,.22);background:linear-gradient(135deg,rgba(9,21,28,.96),rgba(16,22,29,.72));position:relative;overflow:hidden}
+.muestra-isotopo::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 22%,rgba(79,195,217,.08) 49%,transparent 74%);transform:translateX(-100%);pointer-events:none}
+.muestra-isotopo.recuperable{border-color:rgba(240,162,46,.65);box-shadow:inset 0 0 18px rgba(240,162,46,.06)}
+.muestra-isotopo.recuperable::after{animation:paso-muestra 2.8s ease-in-out infinite}
+@keyframes paso-muestra{45%,100%{transform:translateX(100%)}}
+.muestra-cab{display:flex;justify-content:space-between;margin-bottom:8px;font:9px var(--mono);letter-spacing:.13em;color:var(--tenue)}
+.muestra-cab span:last-child{color:var(--frio)}.muestra-isotopo.recuperable .muestra-cab span:first-child{color:var(--calor)}
+.muestra-cuerpo{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}
+.muestra-emblema{width:50px;height:50px;position:relative;display:grid;place-items:center;border:1px solid var(--borde-instrumento);border-radius:50%;color:var(--frio);font:600 18px var(--mono);background:radial-gradient(circle,rgba(79,195,217,.18),transparent 64%)}
+.muestra-isotopo.recuperable .muestra-emblema{border-color:var(--calor);color:var(--calor);box-shadow:0 0 14px rgba(240,162,46,.16)}
+.muestra-emblema i{position:absolute;width:5px;height:5px;border-radius:50%;background:currentColor}.muestra-emblema i:nth-of-type(1){top:4px;left:22px}.muestra-emblema i:nth-of-type(2){right:4px;bottom:11px}.muestra-emblema i:nth-of-type(3){left:7px;bottom:8px}
+.muestra-lectura strong{display:block;font:600 13px var(--mono);letter-spacing:.08em;color:var(--texto)}.muestra-lectura>span{display:block;margin-top:3px;color:var(--tenue);font:9px var(--mono);letter-spacing:.04em}
+.muestra-metricas{display:flex;gap:9px;margin-top:7px;flex-wrap:wrap}.muestra-metricas span{font:8px var(--mono);letter-spacing:.05em;color:var(--tenue)}.muestra-metricas b{font-weight:600;color:var(--frio)}.muestra-isotopo.recuperable .muestra-metricas b{color:var(--calor)}
+.muestra-espectro{height:15px;display:flex;align-items:end;gap:3px;margin-top:8px;border-top:1px solid rgba(79,195,217,.14);padding-top:3px}.muestra-espectro i{display:block;flex:1;background:rgba(79,195,217,.3)}.muestra-espectro i:nth-child(1){height:20%}.muestra-espectro i:nth-child(2){height:45%}.muestra-espectro i:nth-child(3){height:32%}.muestra-espectro i:nth-child(4){height:82%}.muestra-espectro i:nth-child(5){height:42%}.muestra-espectro i:nth-child(6){height:100%}.muestra-espectro i:nth-child(7){height:28%}.muestra-espectro i:nth-child(8){height:62%}.muestra-isotopo.recuperable .muestra-espectro i{background:rgba(240,162,46,.52)}
+#recal{display:none;position:relative;padding:12px 14px 12px 16px;border-color:rgba(79,195,217,.52);background:linear-gradient(90deg,rgba(79,195,217,.1),rgba(79,195,217,.02));}
+#recal::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;background:var(--frio)}#recal .protocolo-codigo{display:block;margin-bottom:4px;font:9px var(--mono);letter-spacing:.14em;color:var(--frio)}#recal strong{display:block;font-size:13px;letter-spacing:.04em}#recal small{margin-top:5px;line-height:1.35}
+#cierre .caja{border-color:rgba(240,162,46,.48);background:linear-gradient(160deg,#18202a,#11171f)}#cierre .cierre-cab{color:var(--calor)}
+@media (prefers-reduced-motion:reduce){.muestra-isotopo.recuperable::after{animation:none}}
+
+
+/* ============================================================
+   FASE 4 · EQUIPO, SALUD DEL SISTEMA Y EVENTOS
+   ============================================================ */
+.panel-cab{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:2px 0 14px;padding:2px 0 12px;border-bottom:1px solid var(--borde-instrumento)}
+.panel-cab h1{margin-top:4px;font:600 20px var(--sans);letter-spacing:-.035em;color:var(--texto)}
+.panel-estado{display:flex;align-items:center;gap:6px;padding-top:5px;white-space:nowrap;font:9px var(--mono);letter-spacing:.1em;color:var(--frio)}
+.panel-estado i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.equipo-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:20px}
+.equipo-resumen>div{min-height:76px;padding:9px 8px;background:linear-gradient(145deg,rgba(29,37,48,.85),rgba(14,18,24,.72));border:1px solid var(--borde-instrumento);border-radius:10px}
+.equipo-resumen span,.equipo-resumen small{display:block;font:8px var(--mono);letter-spacing:.08em;color:var(--tenue)}
+.equipo-resumen strong{display:block;margin:5px 0 3px;font:600 clamp(16px,4.5vw,21px) var(--mono);letter-spacing:-.07em;color:var(--frio);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.equipo-resumen small{font-size:7px;color:rgba(124,139,158,.78)}
+.subseccion-cab h2{margin-bottom:10px}.subseccion-cab h2 span{color:var(--tono);font-size:8px;letter-spacing:.06em}
+.pagina-equipo .subseccion{margin-bottom:26px}.pagina-equipo .subseccion:last-child{margin-bottom:0}
+#selCompra{padding:4px;background:rgba(5,9,13,.36);border:1px solid var(--borde-instrumento);border-radius:11px}
+#selCompra .sel{min-height:38px;border:0;background:transparent;border-radius:7px;font-size:11px}
+#selCompra .sel.activo{background:rgba(79,195,217,.12);box-shadow:inset 0 0 0 1px rgba(79,195,217,.28)}
+.ficha.modulo{position:relative;min-height:70px;margin-bottom:7px;padding:12px 12px;border-radius:10px;background:linear-gradient(100deg,rgba(22,28,37,.98),rgba(16,22,29,.92));overflow:hidden}
+.ficha.modulo::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;background:var(--linea);transition:background .5s}
+.ficha.modulo.activo::before{background:var(--tono);box-shadow:0 0 9px var(--tono)}
+.ficha.modulo .cant{min-width:28px;font-size:18px;color:var(--texto)}
+.ficha.modulo .precio{padding:5px 0 5px 7px;border-left:1px solid rgba(124,139,158,.18);font-size:12px}
+.ficha.modulo .detalle{font-size:10px;letter-spacing:.02em}
+.ficha.modulo.asequible{border-color:rgba(240,162,46,.38)}.ficha.modulo.asequible::before{background:var(--calor)}
+.ficha.mejora{position:relative;min-height:68px;padding:12px 13px;border-style:solid;border-left:3px solid rgba(79,195,217,.35);background:linear-gradient(100deg,rgba(18,31,39,.9),rgba(22,28,37,.9))}
+.ficha.mejora .nombre{font:600 13px var(--mono);letter-spacing:.03em}.ficha.mejora .detalle{font-size:10px}.ficha.mejora.asequible{border-color:rgba(240,162,46,.62);background:linear-gradient(100deg,rgba(52,39,20,.5),rgba(22,28,37,.94))}
+.pagina-sistema section{margin-bottom:20px}.pagina-sistema section:last-child{margin-bottom:0}
+.estado-sistema-panel{padding:11px;border:1px solid var(--borde-instrumento);border-radius:12px;background:linear-gradient(145deg,rgba(12,23,30,.88),rgba(17,23,31,.7))}
+.salud-cab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;font:9px var(--mono);letter-spacing:.1em;color:var(--tenue)}.salud-cab strong{color:var(--frio);font-size:9px}
+.salud-grid{display:grid;gap:10px}.salud-medida>div{display:flex;justify-content:space-between;align-items:baseline;font:9px var(--mono);letter-spacing:.08em;color:var(--tenue)}.salud-medida b{font-size:12px;color:var(--texto);font-variant-numeric:tabular-nums}.salud-medida>i{display:block;height:5px;margin:5px 0;background:rgba(124,139,158,.18);overflow:hidden}.salud-medida>i em{display:block;width:0;height:100%;background:var(--frio);box-shadow:0 0 7px rgba(79,195,217,.45);transition:width .35s ease}.salud-medida small{font:8px var(--mono);letter-spacing:.06em;color:var(--tenue)}.salud-medida.alerta>i em{background:var(--calor);box-shadow:0 0 7px rgba(240,162,46,.45)}.salud-medida.alerta b{color:var(--calor)}
+.eventos-panel,.estadisticas-panel,.hitos-panel{padding-top:2px}.evento{display:grid;grid-template-columns:10px 1fr;gap:8px;padding:10px 4px;border-bottom:1px solid var(--linea)}.evento:last-child{border-bottom:0}.evento>i{width:6px;height:6px;margin-top:5px;border-radius:50%;background:var(--tenue)}.evento.activo>i,.evento.ok>i{background:var(--frio);box-shadow:0 0 7px var(--frio)}.evento.alerta>i{background:var(--calor);box-shadow:0 0 7px var(--calor)}.evento strong{display:block;font:600 10px var(--mono);letter-spacing:.08em;color:var(--texto)}.evento span{display:block;margin-top:3px;font-size:11px;line-height:1.35;color:var(--tenue)}
+.pagina-sistema .stat-fila{padding:11px 4px;background:linear-gradient(90deg,rgba(29,37,48,.45),transparent)}.pagina-sistema .hito{background:rgba(22,28,37,.55)}
+@media (max-width:355px){.equipo-resumen>div{padding:8px 6px}.equipo-resumen strong{font-size:15px}.ficha.modulo{grid-template-columns:25px 1fr auto auto;column-gap:8px}.ficha.modulo .glifo{width:23px}.ficha.modulo .precio{font-size:11px}.ficha.modulo .nom-tasa{display:none}}
+@media (prefers-reduced-motion:reduce){.salud-medida>i em{transition:none}}
+
+
+/* ============ FASE 5 · MICROANIMACIONES ============ */
+/* Todas las animaciones comunican actividad o una acción confirmada. */
+#radarBarrido{
+  fill:var(--tono);opacity:.09;transform-origin:100px 100px;
+  animation:barrido-radar 5.5s linear infinite;
+}
+.centro-radar{fill:var(--tono);animation:centro-radar 2.4s ease-in-out infinite}
+.radar-radial{fill:none;stroke:var(--grid2);stroke-width:.65}
+.marcas-radar{fill:none;stroke:var(--tono);stroke-width:1;opacity:.58}
+.estado-sistema i,.panel-estado i{
+  display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--frio);
+  box-shadow:0 0 0 0 rgba(79,195,217,.48);animation:baliza 2.6s ease-out infinite;
+}
+#puntoGrafica{fill:var(--tono);stroke:var(--fondo);stroke-width:1.5;animation:punto-telemetria 1.7s ease-in-out infinite}
+#areaGrafica{fill:url(#rellenoGrafica)!important;stroke:none!important;opacity:.85}
+#nucleo{isolation:isolate;transform:translateZ(0)}
+#nucleo.extraccion-activa #anillo{animation:respuesta-extraccion .42s cubic-bezier(.2,.85,.25,1)}
+#nucleo.extraccion-activa #halo{animation:destello-extraccion .55s ease-out}
+#nucleo.extraccion-activa .carga{filter:drop-shadow(0 0 5px var(--tono))}
+.pulso-extraccion{
+  position:absolute;left:var(--x);top:var(--y);width:8px;height:8px;border-radius:50%;
+  border:1px solid var(--tono);pointer-events:none;z-index:3;
+  transform:translate(-50%,-50%);animation:pulso-extraccion .65s ease-out forwards;
+}
+.confirmacion-accion{animation:confirmar-accion .38s ease-out}
+#perfilGeologico.estrato-cambia{animation:transicion-estrato .75s ease-out}
+#perfilGeologico.estrato-cambia .columna-estratos{box-shadow:0 0 0 1px var(--tono),0 0 19px color-mix(in srgb,var(--tono) 25%,transparent)}
+#perfilGeologico.estrato-cambia #marcadorProfundidad{animation:marcador-estrato .75s cubic-bezier(.2,.85,.2,1)}
+.muestra-isotopo.muestra-detectada{animation:detectar-muestra .82s cubic-bezier(.16,.8,.25,1)}
+.muestra-isotopo.muestra-detectada .muestra-emblema{animation:emblema-muestra 1.1s ease-out}
+.muestra-isotopo.recuperable .muestra-espectro i{animation:espectro-vivo 1.8s ease-in-out infinite}
+.muestra-isotopo.recuperable .muestra-espectro i:nth-child(2n){animation-delay:.28s}
+#recal:not([style*="display: none"]){animation:protocolo-listo 2.8s ease-in-out infinite}
+@keyframes barrido-radar{to{transform:rotate(360deg)}}
+@keyframes centro-radar{0%,100%{opacity:.65;r:4.4}50%{opacity:1;r:6.4}}
+@keyframes baliza{0%{box-shadow:0 0 0 0 rgba(79,195,217,.45)}75%,100%{box-shadow:0 0 0 7px rgba(79,195,217,0)}}
+@keyframes punto-telemetria{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 4px var(--tono))}}
+@keyframes respuesta-extraccion{50%{transform:scale(.975)}}
+@keyframes destello-extraccion{0%{opacity:.5;transform:scale(.85)}100%{opacity:0;transform:scale(1.32)}}
+@keyframes pulso-extraccion{0%{opacity:1;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(7)}}
+@keyframes confirmar-accion{45%{transform:translateY(-1px) scale(.985);filter:brightness(1.18)}}
+@keyframes transicion-estrato{0%{filter:brightness(1)}30%{filter:brightness(1.42)}100%{filter:brightness(1)}}
+@keyframes marcador-estrato{0%{transform:translateY(-50%) scaleY(.7)}45%{transform:translateY(-50%) scaleY(1.45)}100%{transform:translateY(-50%) scaleY(1)}}
+@keyframes detectar-muestra{0%{transform:translateY(0);box-shadow:none}38%{transform:translateY(-2px);box-shadow:0 0 0 1px var(--calor),0 0 26px rgba(240,162,46,.23)}100%{transform:translateY(0);box-shadow:none}}
+@keyframes emblema-muestra{0%{transform:scale(.72);filter:brightness(1.8)}60%{transform:scale(1.12)}100%{transform:scale(1);filter:brightness(1)}}
+@keyframes espectro-vivo{0%,100%{opacity:.34;transform:scaleY(.55)}50%{opacity:1;transform:scaleY(1)}}
+@keyframes protocolo-listo{0%,100%{box-shadow:0 0 0 rgba(79,195,217,0)}50%{box-shadow:0 0 18px rgba(79,195,217,.18)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+  #radarBarrido{display:none}
+}
+.aplicacion-pausada #radarBarrido,
+.aplicacion-pausada #halo,
+.aplicacion-pausada .estado-sistema i,
+.aplicacion-pausada .panel-estado i,
+.aplicacion-pausada #puntoGrafica{animation-play-state:paused}
+
+/* Fuera de Sondeo el radar no debe consumir composición ni batería: la página
+   queda oculta, pero pausamos explícitamente sus animaciones persistentes. */
+.vista-no-sondeo #radarBarrido,
+.vista-no-sondeo #halo,
+.vista-no-sondeo .centro-radar,
+.vista-no-sondeo #puntoGrafica,
+.vista-no-sondeo #senal{animation-play-state:paused}
