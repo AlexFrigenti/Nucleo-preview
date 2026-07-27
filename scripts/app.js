@@ -93,7 +93,15 @@ function nuevaPartida(){
   const mod = {}; MODULOS.forEach(m=>mod[m.id]=0);
   return { j:0, totalCiclo:0, mod, mejoras:[], isotopos:0, toques:0, t:Date.now(),
            totalVida:0, tiempoJuego:0, mejorTasa:0, toquesVida:0, recalibraciones:0,
-           registro:[], registroLeidos:[], logros:[] };
+           registro:[], registroLeidos:[], logros:[],
+           // Archivo útil: conserva el resultado de cada expedición y las
+           // decisiones científicas relevantes, incluso tras recalibrar.
+           historialPozos:[], bitacora:[], mejorTasaCiclo:0,
+           // Investigación isotópica. `muestras` espera al próximo Protocolo Δ;
+           // `investigacion` ya está convertida en una mejora permanente.
+           muestras:{}, investigacion:{}, resonancias:{}, matricesDelta:0, descubiertos:[], anomaliasCiclo:[],
+           anomalia:null, isotopoActivo:null, tutorialIsotopoVisto:false,
+           objetivosEstrato:[] };
 }
 
 /* ============ CÁLCULOS ============ */
@@ -112,19 +120,20 @@ function bonusGlobal(){
   const base = tieneMejora('enriq') ? 1.07 : 1.05;
   const bonusHitos = 1 + 0.02 * (s.logros ? s.logros.length : 0);
   // red de seguridad: nunca devolver Infinity/NaN (rompería la partida)
-  return Math.min(multiplicadorDe('global') * Math.pow(base, s.isotopos) * bonusHitos, 1e300);
+  return Math.min(multiplicadorDe('global') * Math.pow(base, s.isotopos) * bonusHitos * (1 + .01 * investigacionDe('ni62')) * (1 + .02 * resonanciaDe('ni62')) * (1 + .02 * matricesDelta()) * bonusObjetivoEstrato('global'), 1e300);
 }
 function produccionDe(m){
-  return s.mod[m.id] * m.prod * multiplicadorDe(m.id) * bonusGlobal();
+  return s.mod[m.id] * m.prod * multiplicadorDe(m.id) * bonusGlobal() * (s.isotopoActivo === 'he3' ? 1.25 : 1);
 }
 function porSegundo(){
   return MODULOS.reduce((t,m)=>t+produccionDe(m), 0);
 }
 function porToque(){
-  return 1 * multiplicadorDe('toque') * bonusGlobal();
+  return 1 * multiplicadorDe('toque') * bonusGlobal() * (1 + .02 * investigacionDe('fe57')) * (1 + .03 * resonanciaDe('fe57')) * bonusObjetivoEstrato('toque') * (s.isotopoActivo === 'fe57' ? 1.25 : 1);
 }
 function costeDe(m){
-  return m.base * Math.pow(CRECIMIENTO, s.mod[m.id]);
+  const descuentoSi = Math.min(.25, .01 * investigacionDe('si29') + .02 * resonanciaDe('si29')) + (s.isotopoActivo === 'si29' ? .20 : 0);
+  return m.base * Math.pow(CRECIMIENTO, s.mod[m.id]) * Math.max(.65, 1 - descuentoSi);
 }
 // coste total de comprar k unidades seguidas (suma geométrica)
 function costeVarios(m,k){
@@ -140,35 +149,156 @@ function maxAsequible(m){
   return k;
 }
 function isotoposAlRecalibrar(){
-  return Math.floor(Math.sqrt(s.totalCiclo / UMBRAL));
+  return Math.floor(Math.sqrt(s.totalCiclo / UMBRAL)) + (s.isotopoActivo === 'ni62' ? 1 : 0);
 }
 
-// La muestra es una lectura visual: no se guarda ni altera la economía del pozo.
-const MUESTRAS = [
-  {codigo:'FE-57', simbolo:'Fe', nombre:'HIERRO', estabilidad:81, pureza:94},
-  {codigo:'NI-62', simbolo:'Ni', nombre:'NÍQUEL', estabilidad:76, pureza:91},
-  {codigo:'IR-193', simbolo:'Ir', nombre:'IRIDIO', estabilidad:88, pureza:97},
-  {codigo:'U-235', simbolo:'U', nombre:'URANIO', estabilidad:69, pureza:86},
-  {codigo:'OS-192', simbolo:'Os', nombre:'OSMIO', estabilidad:84, pureza:93}
+// Cada estrato propone una meta visible. Las firmas conservan su elección
+// isotópica; las dos lecturas de control dan una ventaja hasta cerrar el pozo.
+const OBJETIVOS_ESTRATO = [
+  {id:'fe57', min:1000, estrato:'CORTEZA CONTINENTAL', titulo:'LOCALIZAR FIRMA FE-57', detalle:'Alcanza 1.000 m para analizar la primera anomalía isotópica.', recompensa:'Decisión isotópica · Fe-57', firma:'FE-57'},
+  {id:'si29', min:35000, estrato:'MANTO SUPERIOR', titulo:'ATRAVESAR LA DISCONTINUIDAD', detalle:'Alcanza 35 km y localiza una veta de silicio anómalo.', recompensa:'Decisión isotópica · Si-29', firma:'SI-29'},
+  {id:'transicion', min:410000, estrato:'ZONA DE TRANSICIÓN', titulo:'CARTOGRAFIAR LA TRANSICIÓN', detalle:'Alcanza 410 km para estabilizar la lectura de fase mineral.', recompensa:'+15 % extracción manual · este pozo', firma:'LECTURA DE FASE'},
+  {id:'he3', min:660000, estrato:'MANTO INFERIOR', titulo:'AISLAR BOLSILLO DE HE-3', detalle:'Alcanza 660 km y localiza helio atrapado en el flujo profundo.', recompensa:'Decisión isotópica · He-3', firma:'HE-3'},
+  {id:'ni62', min:2890000, estrato:'NÚCLEO EXTERNO', titulo:'CRUZAR GUTENBERG', detalle:'Alcanza 2.890 km para recuperar una firma de níquel estable.', recompensa:'Decisión isotópica · Ni-62', firma:'NI-62'},
+  {id:'nucleo', min:5150000, estrato:'NÚCLEO INTERNO', titulo:'ALINEAR EL NÚCLEO', detalle:'Alcanza 5.150 km y fija la referencia geométrica del pozo.', recompensa:'+10 % producción global · este pozo', firma:'REFERENCIA CENTRAL'}
 ];
-function actualizarMuestra(gana, profM){
-  const muestra = MUESTRAS[s.isotopos % MUESTRAS.length];
+function tieneObjetivoEstrato(id){ return (s.objetivosEstrato || []).includes(id); }
+function bonusObjetivoEstrato(tipo){
+  if(tipo === 'toque' && tieneObjetivoEstrato('transicion')) return 1.15;
+  if(tipo === 'global' && tieneObjetivoEstrato('nucleo')) return 1.10;
+  return 1;
+}
+
+// Cuatro firmas iniciales. Cada una aparece en un estrato concreto y ofrece
+// una decisión clara: rendimiento del pozo actual o investigación del siguiente.
+const MUESTRAS = [
+  {id:'fe57', codigo:'FE-57', simbolo:'Fe', nombre:'HIERRO', estrato:'CORTEZA CONTINENTAL', umbral:1e6, estabilidad:81, pureza:94, temporal:'+25 % extracción manual hasta cerrar el pozo', permanente:'+2 % extracción manual por muestra investigada'},
+  {id:'si29', codigo:'SI-29', simbolo:'Si', nombre:'SILICIO', estrato:'MANTO SUPERIOR', umbral:1225000000, estabilidad:86, pureza:92, temporal:'−20 % coste de módulos hasta cerrar el pozo', permanente:'−1 % coste de módulos por muestra investigada'},
+  {id:'he3', codigo:'HE-3', simbolo:'He', nombre:'HELIO', estrato:'MANTO INFERIOR', umbral:435600000000, estabilidad:73, pureza:89, temporal:'+25 % producción pasiva hasta cerrar el pozo', permanente:'+2 h de producción sin conexión por muestra'},
+  {id:'ni62', codigo:'NI-62', simbolo:'Ni', nombre:'NÍQUEL', estrato:'NÚCLEO EXTERNO', umbral:8352100000000, estabilidad:91, pureza:96, temporal:'+1 isótopo al recalibrar este pozo', permanente:'+1 % producción global por muestra investigada'}
+];
+function investigacionDe(id){ return Number((s.investigacion || {})[id] || 0); }
+function resonanciaDe(id){ return Number((s.resonancias || {})[id] || 0); }
+function matricesDelta(){ return Number(s.matricesDelta || 0); }
+function muestrasPendientesDe(id){ return Number((s.muestras || {})[id] || 0); }
+function muestraPorId(id){ return MUESTRAS.find(m=>m.id === id); }
+function totalMuestrasPendientes(){ return MUESTRAS.reduce((n,m)=>n + muestrasPendientesDe(m.id), 0); }
+function descripcionInvestigacionPendiente(){
+  return MUESTRAS.filter(m=>muestrasPendientesDe(m.id)).map(m=>m.codigo + ' ×' + muestrasPendientesDe(m.id)).join(' · ');
+}
+function registrarBitacora(tipo, titulo, detalle, opciones={}){
+  if(!Array.isArray(s.bitacora)) s.bitacora = [];
+  const entrada = {
+    id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6),
+    tipo, titulo, detalle,
+    pozo: (s.recalibraciones || 0) + 1,
+    profundidad: opciones.profundidad === undefined ? profundidad() : opciones.profundidad,
+    fecha: Date.now()
+  };
+  s.bitacora.unshift(entrada);
+  s.bitacora = s.bitacora.slice(0, 36);
+}
+function textoResonancia(id, cantidad){
+  const muestras = {fe57:'extracción manual +3 %', si29:'coste de módulos −2 %', he3:'progreso sin conexión +4 h', ni62:'producción global +2 %'};
+  return (cantidad > 1 ? cantidad + '× ' : '') + muestras[id];
+}
+function proyeccionDelta(){
+  const muestras = MUESTRAS.filter(m=>muestrasPendientesDe(m.id));
+  const individuales = muestras.map(m=>({id:m.id, codigo:m.codigo, cantidad:muestrasPendientesDe(m.id), texto:m.permanente}));
+  const resonancias = [];
+  muestras.forEach(m=>{
+    const antes = Math.floor(investigacionDe(m.id) / 2);
+    const despues = Math.floor((investigacionDe(m.id) + muestrasPendientesDe(m.id)) / 2);
+    if(despues > antes) resonancias.push({id:m.id, cantidad:despues-antes, texto:textoResonancia(m.id, despues-antes)});
+  });
+  return {individuales, resonancias, matriz:muestras.length >= 2 ? 1 : 0, tipos:muestras.length};
+}
+function lineasProtocoloDelta(){
+  const p = proyeccionDelta();
+  const lineas = [];
+  p.individuales.forEach(x=>lineas.push(x.codigo + ' ×' + x.cantidad + ': ' + x.texto));
+  p.resonancias.forEach(x=>lineas.push('Resonancia ' + x.id.toUpperCase() + ': ' + x.texto));
+  if(p.matriz) lineas.push('Matriz mixta (' + p.tipos + ' familias): producción global +2 %');
+  return lineas;
+}
+function actualizarMuestra(profM){
   const lista = $('muestraIsotopo');
-  const listaRecuperable = gana >= 1;
+  const muestra = s.anomalia ? muestraPorId(s.anomalia.id) : (s.isotopoActivo ? muestraPorId(s.isotopoActivo) : null);
+  const listaRecuperable = !!s.anomalia;
   const estabaRecuperable = lista.classList.contains('recuperable');
   lista.classList.toggle('recuperable', listaRecuperable);
   if(listaRecuperable && !estabaRecuperable) dispararMuestraDetectada();
-  $('muestraEstado').textContent = listaRecuperable ? 'ISÓTOPO DETECTADO' : 'ANÁLISIS EN CURSO';
+  if(!muestra){
+    $('muestraEstado').textContent = 'ANÁLISIS EN CURSO';
+    $('muestraCodigo').textContent = '—'; $('muestraSimbolo').textContent = '·'; $('muestraNombre').textContent = 'SIN FIRMA ACTIVA';
+    $('muestraDetalle').textContent = 'Explorando firma a ' + fmtMetros(profM) + ' m';
+    $('muestraEstabilidad').textContent = '—'; $('muestraPureza').textContent = '—'; $('muestraCantidad').textContent = totalMuestrasPendientes() || '—';
+    $('muestraAcciones').innerHTML = totalMuestrasPendientes() ? '<span class="muestra-custodia">Muestras en custodia · Protocolo Δ pendiente</span>' : '';
+    return;
+  }
+  const analizada = s.anomalia && s.anomalia.analizada;
+  $('muestraEstado').textContent = s.isotopoActivo ? 'ESTABILIZADO · POZO ACTUAL' : (analizada ? 'MUESTRA ANALIZADA' : 'ANOMALÍA DETECTADA');
   $('muestraCodigo').textContent = muestra.codigo;
   $('muestraSimbolo').textContent = muestra.simbolo;
   $('muestraNombre').textContent = muestra.nombre;
-  $('muestraDetalle').textContent = listaRecuperable
-    ? 'Muestra lista para recuperación'
-    : 'Firma a ' + fmtMetros(profM) + ' m';
-  $('muestraEstabilidad').textContent = listaRecuperable ? muestra.estabilidad + '%' : '—';
-  $('muestraPureza').textContent = listaRecuperable ? muestra.pureza + '%' : '—';
-  $('muestraCantidad').textContent = listaRecuperable ? gana : '—';
+  $('muestraDetalle').textContent = s.isotopoActivo ? muestra.temporal : (analizada ? 'Elige cómo aprovechar la firma' : 'Firma localizada a ' + fmtMetros(profM) + ' m');
+  $('muestraEstabilidad').textContent = muestra.estabilidad + '%';
+  $('muestraPureza').textContent = muestra.pureza + '%';
+  $('muestraCantidad').textContent = muestrasPendientesDe(muestra.id) || '—';
+  $('muestraAcciones').innerHTML = s.isotopoActivo ? '<span class="muestra-activa">EFECTO ACTIVO · ' + muestra.temporal + '</span>' : !analizada
+    ? '<button class="muestra-accion primaria" id="analizarMuestra">ANALIZAR MUESTRA</button>'
+    : '<button class="muestra-accion" data-protocolo="estabilizar">ESTABILIZAR <small>' + muestra.temporal + '</small></button><button class="muestra-accion" data-protocolo="recuperar">RECUPERAR <small>Investigar en Protocolo Δ</small></button>';
 }
+
+function comprobarAnomalia(){
+  if(s.anomalia) return;
+  const muestra = MUESTRAS.find(m=>s.totalCiclo >= m.umbral && !(s.anomaliasCiclo || []).includes(m.id));
+  if(!muestra) return;
+  s.anomalia = {id:muestra.id, analizada:false};
+  guardar();
+  if(!s.tutorialIsotopoVisto) mostrarTutorialIsotopo('deteccion');
+}
+function analizarMuestra(){
+  if(!s.anomalia) return;
+  const muestra = muestraPorId(s.anomalia.id);
+  if(muestra && !s.descubiertos.includes(muestra.id)) s.descubiertos.push(muestra.id);
+  s.anomalia.analizada = true; guardar();
+  if(!s.tutorialIsotopoVisto) mostrarTutorialIsotopo('decision');
+}
+function resolverMuestra(protocolo){
+  if(!s.anomalia || !s.anomalia.analizada) return;
+  const muestra = muestraPorId(s.anomalia.id);
+  if(protocolo === 'estabilizar'){
+    s.isotopoActivo = muestra.id;
+    registrarBitacora('estabilizada', muestra.codigo + ' estabilizado', muestra.temporal);
+  }
+  else {
+    s.muestras[muestra.id] = muestrasPendientesDe(muestra.id) + 1;
+    if(!s.descubiertos.includes(muestra.id)) s.descubiertos.push(muestra.id);
+    registrarBitacora('recuperada', muestra.codigo + ' enviado a custodia', 'Muestra recuperada · ' + muestra.permanente);
+  }
+  s.anomaliasCiclo.push(muestra.id); s.anomalia = null; s.tutorialIsotopoVisto = true;
+  ocultarTutorialIsotopo(); dispararMuestraDetectada(); guardar();
+}
+function mostrarTutorialIsotopo(paso){
+  const modal = $('tutorialIsotopo');
+  const muestra = s.anomalia && muestraPorId(s.anomalia.id);
+  if(!muestra) return;
+  $('tutorialCodigo').textContent = muestra.codigo + ' · ' + muestra.nombre;
+  if(paso === 'deteccion'){
+    $('tutorialEtiqueta').textContent = 'ANOMALÍA DETECTADA';
+    $('tutorialTitulo').textContent = 'Una firma ha interrumpido el sondeo';
+    $('tutorialTexto').textContent = 'La muestra puede darte ventaja inmediata o convertirse en investigación para futuras expediciones.';
+    $('tutorialAcciones').innerHTML = '<button class="tutorial-btn principal" id="tutorialAnalizar">ANALIZAR MUESTRA</button>';
+  }else{
+    $('tutorialEtiqueta').textContent = 'MUESTRA ANALIZADA';
+    $('tutorialTitulo').textContent = 'Decide qué hacer con ' + muestra.codigo;
+    $('tutorialTexto').textContent = 'Estabilizar cambia este pozo. Recuperar guarda la muestra y el Protocolo Δ la convertirá en una mejora permanente.';
+    $('tutorialAcciones').innerHTML = '<button class="tutorial-btn" data-protocolo="estabilizar">ESTABILIZAR <small>'+muestra.temporal+'</small></button><button class="tutorial-btn principal" data-protocolo="recuperar">RECUPERAR <small>Investigación: '+muestra.permanente+'</small></button>';
+  }
+  modal.classList.add('on');
+}
+function ocultarTutorialIsotopo(){ $('tutorialIsotopo').classList.remove('on'); }
 
 /* ============ FORMATO DE NÚMEROS ============ */
 const SUF = ['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];
@@ -201,6 +331,52 @@ const ESTRATOS = [
   {min:0,       n:'CORTEZA CONTINENTAL'}
 ];
 function estratoDe(prof){ for(const e of ESTRATOS){ if(prof >= e.min) return e.n; } return 'CORTEZA CONTINENTAL'; }
+
+function siguienteObjetivoEstrato(){ return OBJETIVOS_ESTRATO.find(o=>!tieneObjetivoEstrato(o.id)) || null; }
+function comprobarObjetivosEstrato(silencioso=false){
+  if(!Array.isArray(s.objetivosEstrato)) s.objetivosEstrato = [];
+  const prof = profundidad();
+  const nuevos = OBJETIVOS_ESTRATO.filter(o=>prof >= o.min && !tieneObjetivoEstrato(o.id));
+  if(!nuevos.length) return;
+  nuevos.forEach(o=>{
+    s.objetivosEstrato.push(o.id);
+    if(!silencioso) registrarBitacora('estrato', o.titulo, o.recompensa, {profundidad:o.min});
+  });
+  guardar();
+  if(!silencioso) mostrarObjetivoEstrato(nuevos[nuevos.length-1]);
+}
+function mostrarObjetivoEstrato(objetivo){
+  const aviso = $('objetivoEstrato');
+  if(!aviso) return;
+  aviso.classList.remove('objetivo-completado');
+  void aviso.offsetWidth;
+  aviso.classList.add('objetivo-completado');
+  $('objetivoEstado').textContent = 'OBJETIVO COMPLETADO · ' + objetivo.estrato;
+  clearTimeout(aviso._objetivoTimer);
+  aviso._objetivoTimer = setTimeout(()=>aviso.classList.remove('objetivo-completado'), 1600);
+}
+function actualizarObjetivoEstrato(prof){
+  const siguiente = siguienteObjetivoEstrato();
+  const anterior = [...OBJETIVOS_ESTRATO].reverse().find(o=>tieneObjetivoEstrato(o.id));
+  if(!siguiente){
+    $('objetivoEstado').textContent = 'EXPEDICIÓN COMPLETADA';
+    $('objetivoTitulo').textContent = 'TODOS LOS ESTRATOS CARTOGRAFIADOS';
+    $('objetivoDetalle').textContent = 'La referencia central permanece estable hasta cerrar el pozo.';
+    $('objetivoProgreso').textContent = '6 / 6'; $('objetivoBarra').style.width = '100%';
+    $('objetivoRecompensa').textContent = 'EFECTOS ACTIVOS · ' + (tieneObjetivoEstrato('transicion') ? '+15 % manual' : '') + (tieneObjetivoEstrato('nucleo') ? ' · +10 % producción' : '');
+    $('perfilFirma').textContent = 'PERFIL COMPLETO · REFERENCIA CENTRAL FIJADA';
+    return;
+  }
+  const desde = anterior ? anterior.min : 0;
+  const avance = Math.max(0, Math.min(1, (prof - desde) / (siguiente.min - desde)));
+  $('objetivoEstado').textContent = 'OBJETIVO · ' + siguiente.estrato;
+  $('objetivoTitulo').textContent = siguiente.titulo;
+  $('objetivoDetalle').textContent = siguiente.detalle;
+  $('objetivoProgreso').textContent = fmtMetros(prof) + ' / ' + fmtMetros(siguiente.min) + ' m';
+  $('objetivoBarra').style.width = (avance * 100).toFixed(1) + '%';
+  $('objetivoRecompensa').textContent = 'RECOMPENSA · ' + siguiente.recompensa;
+  $('perfilFirma').textContent = 'PRÓXIMA FIRMA · ' + siguiente.firma + ' A ' + fmtMetros(siguiente.min) + ' m';
+}
 
 /* ============ CONSTRUCCIÓN DE LA INTERFAZ ============ */
 // Las lecturas de interfaz son muy frecuentes. Cachearlas evita volver a recorrer
@@ -317,25 +493,60 @@ $('nucleo').addEventListener('pointerdown', e=>{
 $('recal').onclick = ()=>{
   const gana = isotoposAlRecalibrar();
   if(gana < 1) return;
-  if(!confirm(`Recalibrar reinicia julios, módulos y mejoras.\n\nGanas ${gana} isótopo${gana>1?'s':''} (producción ×${fmt(Math.pow(1.05,gana))} para siempre).\n\n¿Seguimos?`)) return;
   mostrarCierre(gana);
 };
 
 // entrada de cierre (no va por profundidad): se lee antes de reiniciar
 function mostrarCierre(gana){
-  $('cierreCab').textContent = 'CIERRE DE POZO ' + String((s.recalibraciones||0)+1).padStart(2,'0');
-  $('cierreTxt').textContent = 'Muestra estabilizada: ' + gana + ' isótopo' + (gana>1?'s':'') + '.\n\nEl pozo no ha colapsado. Se ha cerrado.\nRecomiendo emplazamiento nuevo a 400 m del anterior.';
+  $('cierreCab').textContent = 'PROTOCOLO Δ · VISTA PREVIA';
+  $('cierreTxt').textContent = 'El cierre reinicia julios, módulos y mejoras del pozo actual. Estas mejoras se conservarán de forma permanente en el siguiente emplazamiento.';
+  const lineas = lineasProtocoloDelta();
+  $('cierreDetalle').innerHTML = [
+    '<div class="delta-linea base"><strong>RECALIBRACIÓN BASE</strong><span>+' + gana + ' isótopo' + (gana>1?'s':'') + ' · producción ×' + fmt(Math.pow(1.05,gana)) + '</span></div>',
+    ...(lineas.length ? lineas.map(linea=>'<div class="delta-linea"><strong>INVESTIGACIÓN</strong><span>' + linea + '</span></div>') : ['<div class="delta-linea vacia"><strong>LABORATORIO</strong><span>Sin muestras en custodia; solo se aplicará la recalibración base.</span></div>'])
+  ].join('');
+  $('cierreOk').textContent = 'EJECUTAR CALIBRACIÓN';
   $('cierre').classList.add('on');
+  $('cierreCancelar').onclick = ()=>{ $('cierre').classList.remove('on'); };
   $('cierreOk').onclick = ()=>{ $('cierre').classList.remove('on'); hacerRecalibrado(gana); };
 }
 
 function hacerRecalibrado(gana){
   const iso = s.isotopos + gana;
+  const investigacion = {...s.investigacion};
+  const resonancias = {...(s.resonancias || {})};
+  const proyeccion = proyeccionDelta();
+  const matrices = matricesDelta() + proyeccion.matriz;
+  MUESTRAS.forEach(m=>{
+    const antes = Math.floor(investigacionDe(m.id) / 2);
+    const despues = Math.floor((investigacionDe(m.id) + muestrasPendientesDe(m.id)) / 2);
+    resonancias[m.id] = resonanciaDe(m.id) + Math.max(0, despues - antes);
+  });
+  MUESTRAS.forEach(m=>{ investigacion[m.id] = investigacionDe(m.id) + muestrasPendientesDe(m.id); });
+  const profundidadCierre = profundidad();
+  const numeroPozo = (s.recalibraciones || 0) + 1;
+  const muestrasIntegradas = MUESTRAS.filter(m=>muestrasPendientesDe(m.id)).map(m=>m.codigo + ' ×' + muestrasPendientesDe(m.id));
+  const historialPozos = [...(s.historialPozos || [])];
+  historialPozos.unshift({
+    numero:numeroPozo, profundidad:profundidadCierre, estrato:estratoDe(profundidadCierre),
+    produccion:Math.max(s.mejorTasaCiclo || 0, porSegundo()), isotopos:gana,
+    muestras:muestrasIntegradas, objetivos:[...(s.objetivosEstrato || [])],
+    matriz:proyeccion.matriz, fecha:Date.now()
+  });
+  const bitacora = [...(s.bitacora || [])];
+  bitacora.unshift({
+    id:Date.now().toString(36) + '-delta', tipo:'delta', titulo:'Protocolo Δ ejecutado',
+    detalle:'Pozo ' + String(numeroPozo).padStart(2,'0') + ' cerrado · +' + gana + ' isótopo' + (gana>1?'s':'') + (muestrasIntegradas.length ? ' · investigación integrada: ' + muestrasIntegradas.join(', ') : ''),
+    pozo:numeroPozo, profundidad:profundidadCierre, fecha:Date.now()
+  });
   const vida = {
     totalVida: s.totalVida, tiempoJuego: s.tiempoJuego, mejorTasa: s.mejorTasa,
     toquesVida: s.toquesVida, recalibraciones: (s.recalibraciones||0) + 1,
     registro: s.registro, registroLeidos: s.registroLeidos,  // el registro NO se pierde
-    logros: s.logros                                          // los hitos tampoco
+    logros: s.logros,                                         // los hitos tampoco
+    investigacion, resonancias, matricesDelta: matrices, descubiertos: s.descubiertos,
+    tutorialIsotopoVisto: s.tutorialIsotopoVisto,
+    historialPozos:historialPozos.slice(0, 24), bitacora:bitacora.slice(0, 36)
   };
   s = nuevaPartida(); s.isotopos = iso; Object.assign(s, vida);
   pintarMejoras(); guardar();
@@ -391,6 +602,9 @@ function renderEventosRecientes(){
   const visibles = mejorasVisibles();
   if(s.recalibraciones) eventos.push(['CIERRE CONFIRMADO','Pozo ' + String(s.recalibraciones + 1).padStart(2,'0') + ' en operación · ' + s.isotopos + ' isótopos recuperados.','ok']);
   eventos.push(['EXTRACCIÓN ACTIVA', prof ? 'Sonda a ' + fmtMetros(prof) + ' m · ' + estratoDe(prof) + '.':'Esperando la primera extracción manual.','activo']);
+  if(s.anomalia){ const m = muestraPorId(s.anomalia.id); eventos.unshift(['ANOMALÍA ISOTÓPICA', m.codigo + ' · análisis pendiente en ' + m.estrato + '.','alerta']); }
+  else if(s.isotopoActivo){ const m = muestraPorId(s.isotopoActivo); eventos.unshift(['FIRMA ESTABILIZADA', m.codigo + ' · ' + m.temporal + '.','ok']); }
+  else if(totalMuestrasPendientes()) eventos.unshift(['MUESTRAS EN CUSTODIA', descripcionInvestigacionPendiente() + ' · disponible para Protocolo Δ.','info']);
   if(visibles.length) eventos.push(['MEJORA DISPONIBLE', visibles[0].nombre + ' · inversión de ' + fmt(visibles[0].coste) + ' J.','alerta']);
   else eventos.push(['LABORATORIO', 'Sin mejoras desbloqueadas. Amplía la red de módulos.','info']);
   const ultimoRegistro = s.registro.length && typeof REGISTRO !== 'undefined' ? REGISTRO.find(e=>e.id === s.registro[s.registro.length-1]) : null;
@@ -440,6 +654,8 @@ function actualizarBadge(){
 }
 function marcarLeidas(){ s.registroLeidos = [...s.registro]; actualizarBadge(); }
 function pintarRegistro(){
+  pintarCatalogoIsotopos();
+  pintarArchivoExpedicion();
   const cont = $('registroLista'); cont.innerHTML = '';
   if(s.registro.length === 0){
     cont.innerHTML = '<p class="vacio">Sin entradas. El registro se completa al perforar más hondo.</p>';
@@ -454,6 +670,41 @@ function pintarRegistro(){
     div.querySelector('.reg-txt').textContent = e.txt;
     cont.appendChild(div);
   });
+}
+
+function pintarArchivoExpedicion(){
+  const pozos = s.historialPozos || [];
+  const bitacora = s.bitacora || [];
+  const record = Math.max(profundidad(), ...pozos.map(p=>Number(p.profundidad)||0));
+  const firmas = MUESTRAS.filter(m=>s.descubiertos.includes(m.id) || investigacionDe(m.id)>0).length;
+  $('registroPozos').textContent = pozos.length;
+  $('registroProfundidad').textContent = fmtMetros(record) + ' m';
+  $('registroFirmas').textContent = firmas + ' / ' + MUESTRAS.length;
+  $('registroEstado').textContent = bitacora.length ? bitacora.length + ' REGISTROS' : 'EN LÍNEA';
+  $('historialPozosEstado').textContent = pozos.length ? pozos.length + ' CIERRE' + (pozos.length>1?'S':'') : 'SIN CIERRES';
+  $('bitacoraEstado').textContent = bitacora.length ? bitacora.length + ' SEÑALES' : 'SEÑALES RELEVANTES';
+  $('archivoEstado').textContent = s.registro.length + ' / ' + (typeof REGISTRO === 'undefined' ? 0 : REGISTRO.length) + ' ENTRADAS';
+  $('historialPozos').innerHTML = pozos.length ? pozos.map(p=>{
+    const muestras = p.muestras && p.muestras.length ? p.muestras.join(' · ') : 'Sin muestras integradas';
+    return '<article class="pozo-archivo"><div><strong>POZO ' + String(p.numero).padStart(2,'0') + '</strong><span>' + (p.estrato || estratoDe(p.profundidad)) + ' · ' + fmtMetros(p.profundidad) + ' m</span></div><b>+' + p.isotopos + ' ISO</b><small>Máx. ' + fmt(p.produccion) + ' J/s · ' + muestras + (p.matriz ? ' · matriz mixta' : '') + '</small></article>';
+  }).join('') : '<p class="vacio">El primer cierre guardará aquí la profundidad, producción y muestras de cada pozo.</p>';
+  $('bitacoraCientifica').innerHTML = bitacora.length ? bitacora.slice(0,10).map(e=>
+    '<article class="bitacora-item ' + e.tipo + '"><i></i><div><strong>' + e.titulo + '</strong><span>Pozo ' + String(e.pozo||1).padStart(2,'0') + ' · ' + fmtMetros(e.profundidad||0) + ' m</span><small>' + e.detalle + '</small></div></article>'
+  ).join('') : '<p class="vacio">Las anomalías, objetivos y recalibraciones relevantes quedarán registradas aquí.</p>';
+}
+
+function pintarCatalogoIsotopos(){
+  const cont = $('catalogoIsotopos');
+  if(!cont) return;
+  cont.innerHTML = MUESTRAS.map(m=>{
+    const descubierto = s.descubiertos.includes(m.id) || investigacionDe(m.id) > 0;
+    const investigado = investigacionDe(m.id);
+    const resonancia = resonanciaDe(m.id);
+    return `<article class="catalogo-isotopo ${descubierto ? 'descubierto' : ''}">
+      <div class="catalogo-simbolo">${descubierto ? m.simbolo : '?'}</div><div><strong>${descubierto ? m.codigo + ' · ' + m.nombre : 'FIRMA NO IDENTIFICADA'}</strong>
+      <span>${descubierto ? m.estrato : m.estrato + ' · sin confirmar'}</span>
+      <small>${descubierto ? 'Investigación: ' + investigado + ' · ' + m.permanente + (resonancia ? ' · Resonancia: ' + textoResonancia(m.id, resonancia) : '') : 'Profundidad de análisis: ' + fmtMetros(Math.sqrt(m.umbral)) + ' m'}</small></div></article>`;
+  }).join('');
 }
 
 /* ============ HITOS ============ */
@@ -558,6 +809,13 @@ $('btnCargar').onclick = ()=>{
   if(!confirm('Esto reemplazará la partida de ESTE dispositivo por la del código. ¿Seguro?')) return;
   s = Object.assign(nuevaPartida(), datos);
   MODULOS.forEach(m=>{ if(typeof s.mod[m.id] !== 'number') s.mod[m.id]=0; });
+  if(!s.muestras || typeof s.muestras !== 'object') s.muestras = {};
+  if(!s.investigacion || typeof s.investigacion !== 'object') s.investigacion = {};
+  if(!Array.isArray(s.descubiertos)) s.descubiertos = [];
+  if(!Array.isArray(s.anomaliasCiclo)) s.anomaliasCiclo = [];
+  if(!Array.isArray(s.historialPozos)) s.historialPozos = [];
+  if(!Array.isArray(s.bitacora)) s.bitacora = [];
+  if(typeof s.mejorTasaCiclo !== 'number') s.mejorTasaCiclo = 0;
   guardar();
   crearFichas(); pintarMejoras();
   $('datosArea').style.display = 'none';
@@ -632,6 +890,7 @@ function bucle(ahora){
   s.j += ganado; s.totalCiclo += ganado; s.totalVida += ganado;
   s.tiempoJuego += dt;
   if(jps > s.mejorTasa) s.mejorTasa = jps;
+  if(jps > s.mejorTasaCiclo) s.mejorTasaCiclo = jps;
 
   acumTic += dt;
   if(acumTic >= 1){
@@ -640,6 +899,8 @@ function bucle(ahora){
     if(pestanaActiva === 'sistema') renderSistema();
     comprobarRegistro();
     comprobarLogros();
+    comprobarAnomalia();
+    comprobarObjetivosEstrato();
     const dur = Math.max(2.2, 6 - Math.log10(profundidad()+10)*0.5).toFixed(1);
     if(dur !== senalDurActual){ senalDurActual = dur; document.documentElement.style.setProperty('--senal-dur', dur+'s'); }
   }
@@ -656,10 +917,6 @@ function bucle(ahora){
 }
 
 function dibujar(jps){
-  if(pestanaActiva === 'equipo'){
-    dibujarEquipo(jps);
-    return;
-  }
   if(pestanaActiva !== 'sondeo') return;
 
   $('julios').textContent = fmt(s.j);
@@ -676,6 +933,7 @@ function dibujar(jps){
   }
   $('radarProfundidad').textContent = fmtMetros(profM) + ' m';
   actualizarInstrumentos(profM, jps);
+  actualizarObjetivoEstrato(profM);
   $('cabPozo').textContent = 'POZO ' + String((s.recalibraciones||0)+1).padStart(2,'0') + ' · SONDEO PROFUNDO';
 
   // anillo: avance hacia el siguiente isótopo
@@ -691,15 +949,16 @@ function dibujar(jps){
       : 'primer isótopo al ' + Math.floor(p*100) + '%';
 
   const gana = isotoposAlRecalibrar();
-  actualizarMuestra(gana, profM);
+  actualizarMuestra(profM);
   const boton = $('recal');
   boton.style.display = (gana >= 1) ? 'block' : 'none';
   if(gana >= 1) boton.innerHTML =
-    `<span class="protocolo-codigo">PROTOCOLO Δ-${String((s.recalibraciones||0)+1).padStart(2,'0')}</span><strong>RECALIBRAR INSTRUMENTACIÓN</strong><small>Recuperar ${gana} isótopo${gana>1?'s':''} · reinicia el ciclo · ×${fmt(Math.pow(1.05,gana))} permanente</small>`;
+    `<span class="protocolo-codigo">PROTOCOLO Δ-${String((s.recalibraciones||0)+1).padStart(2,'0')}</span><strong>RECALIBRAR INSTRUMENTACIÓN</strong><small>Recuperar ${gana} isótopo${gana>1?'s':''} · ${totalMuestrasPendientes() ? 'integrar ' + totalMuestrasPendientes() + ' muestra' + (totalMuestrasPendientes()>1?'s':'') + ' · ' : ''}reinicia el ciclo · ×${fmt(Math.pow(1.05,gana))} permanente</small>`;
 
   const multIso = Math.pow(tieneMejora('enriq')?1.07:1.05, s.isotopos);
-  $('isotopos').textContent = s.isotopos
-    ? s.isotopos+' isótopos · ×'+fmt(multIso) : 'sin isótopos';
+  const laboratorio = totalMuestrasPendientes() ? ' · '+totalMuestrasPendientes()+' muestra'+(totalMuestrasPendientes()>1?'s':'')+' en custodia' : '';
+  $('isotopos').textContent = (s.isotopos ? s.isotopos+' isótopos · ×'+fmt(multIso) : 'sin isótopos') + laboratorio;
+  dibujarEquipo(jps);
 }
 
 function dibujarEquipo(jps){
@@ -747,7 +1006,8 @@ function guardar(){
 // Aplica la producción del tiempo que la app estuvo cerrada o en segundo plano.
 // "desde" = marca de tiempo en que se guardó al salir. Tope: 8 h (24 h con batería).
 function aplicarAusencia(desde){
-  const tope = tieneMejora('bateria') ? 24*3600 : TOPE_AUSENTE;
+  const topeBase = tieneMejora('bateria') ? 24*3600 : TOPE_AUSENTE;
+  const tope = Math.min(24*3600, topeBase + investigacionDe('he3') * 2*3600 + resonanciaDe('he3') * 4*3600);
   const fuera = Math.min((Date.now() - (desde || Date.now()))/1000, tope);
   if(fuera > 60){
     const extra = porSegundo() * fuera;
@@ -768,14 +1028,28 @@ async function cargar(){
       const d = JSON.parse(bruto);
       s = Object.assign(nuevaPartida(), d);
       MODULOS.forEach(m=>{ if(typeof s.mod[m.id] !== 'number') s.mod[m.id]=0; });
+      // Migración segura de partidas anteriores a la investigación isotópica.
+      if(!s.muestras || typeof s.muestras !== 'object') s.muestras = {};
+      if(!s.investigacion || typeof s.investigacion !== 'object') s.investigacion = {};
+      if(!Array.isArray(s.descubiertos)) s.descubiertos = [];
+      if(!Array.isArray(s.anomaliasCiclo)) s.anomaliasCiclo = [];
+      if(!Array.isArray(s.objetivosEstrato)) s.objetivosEstrato = [];
+      if(!Array.isArray(s.historialPozos)) s.historialPozos = [];
+      if(!Array.isArray(s.bitacora)) s.bitacora = [];
+      if(typeof s.mejorTasaCiclo !== 'number') s.mejorTasaCiclo = 0;
+      if(typeof s.tutorialIsotopoVisto !== 'boolean') s.tutorialIsotopoVisto = false;
+      if(!s.anomalia || !muestraPorId(s.anomalia.id)) s.anomalia = null;
+      if(!muestraPorId(s.isotopoActivo)) s.isotopoActivo = null;
       if(typeof d.totalVida !== 'number') s.totalVida = s.totalCiclo;
       if(typeof d.toquesVida !== 'number') s.toquesVida = s.toques;
+      // Las metas ya logradas se reconocen sin seis avisos al actualizar.
+      comprobarObjetivosEstrato(true);
 
       aplicarAusencia(d.t);
     }catch(e){ /* partida corrupta: empezamos de cero */ }
   }
   crearFichas(); pintarMejoras();
-  comprobarRegistro(); actualizarBadge(); comprobarLogros();
+  comprobarRegistro(); actualizarBadge(); comprobarLogros(); comprobarObjetivosEstrato(true);
   rafId = requestAnimationFrame(t=>{ ultimo = t; bucle(t); });
 }
 // reinicia el motor del juego (por si iOS lo detuvo en segundo plano)
@@ -817,13 +1091,21 @@ function mostrarPagina(id){
   document.documentElement.classList.toggle('vista-no-sondeo', id !== 'sondeo');
   _paginas.forEach(p => p.classList.toggle('oculta', p.dataset.pag !== id));
   _navTabs.forEach(t => t.classList.toggle('activo', t.dataset.pag === id));
-  if(id === 'equipo')   pintarMejoras();
   if(id === 'sistema') renderSistema();
   if(id === 'registro'){ marcarLeidas(); pintarRegistro(); guardar(); }
   window.scrollTo(0, 0);
   acumRender = INTERVALO_RENDER;
 }
 _navTabs.forEach(t => t.onclick = ()=> mostrarPagina(t.dataset.pag));
+
+const alternarMejoras = $('alternarMejoras');
+const panelMejoras = $('panelMejoras');
+alternarMejoras.onclick = ()=>{
+  const abierto = panelMejoras.hidden;
+  panelMejoras.hidden = !abierto;
+  alternarMejoras.setAttribute('aria-expanded', String(abierto));
+  if(abierto) pintarMejoras();
+};
 
 /* onda de la señal de fondo: seno repetible de 80 px que se desliza en bucle */
 (function pintarSenalFondo(){
@@ -840,7 +1122,7 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 26;
+const VERSION = 31;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
@@ -922,7 +1204,14 @@ function dispararMuestraDetectada(){
   }, {passive:true});
 
   document.addEventListener('click', evento=>{
-    const boton = evento.target.closest('#modulos .ficha, #mejoras .ficha, #recal, #cierreOk, #selCompra .sel, #navbar .nav-tab');
+    if(evento.target.closest('#analizarMuestra, #tutorialAnalizar')){
+      analizarMuestra();
+      if(!s.tutorialIsotopoVisto) mostrarTutorialIsotopo('decision');
+      return;
+    }
+    const protocolo = evento.target.closest('[data-protocolo]');
+    if(protocolo){ resolverMuestra(protocolo.dataset.protocolo); return; }
+    const boton = evento.target.closest('#modulos .ficha, #mejoras .ficha, #recal, #cierreOk, #selCompra .sel, #alternarMejoras, #navbar .nav-tab');
     if(!boton || boton.disabled) return;
     reiniciarClase(boton, 'confirmacion-accion');
     if(boton.matches('#modulos .ficha, #mejoras .ficha, #recal')) crearPulsoExtraccion(boton);
