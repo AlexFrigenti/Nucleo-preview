@@ -352,6 +352,21 @@ const ESTRATOS = [
   {min:0,       n:'CORTEZA CONTINENTAL'}
 ];
 function estratoDe(prof){ for(const e of ESTRATOS){ if(prof >= e.min) return e.n; } return 'CORTEZA CONTINENTAL'; }
+function claseEstrato(nombre){
+  return 'estrato-' + nombre.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+function actualizarParedEstrato(nombre){
+  const pared = $('paredEstrato');
+  const claseNueva = claseEstrato(nombre);
+  if(!pared.classList.contains(claseNueva)){
+    [...pared.classList].filter(c=>c.startsWith('estrato-')).forEach(c=>pared.classList.remove(c));
+    pared.classList.add(claseNueva, 'estrato-transicion');
+    window.setTimeout(()=>pared.classList.remove('estrato-transicion'), 720);
+  }
+  $('formacionActiva').textContent = 'FORMACIÓN · ' + nombre;
+}
 
 function siguienteObjetivoEstrato(){ return OBJETIVOS_ESTRATO.find(o=>!tieneObjetivoEstrato(o.id)) || null; }
 function comprobarObjetivosEstrato(silencioso=false){
@@ -965,6 +980,7 @@ function dibujar(jps){
   const profM = profundidad();
   $('prof').textContent = fmtProfundidad(profM);
   const nombreEstrato = estratoDe(profM);
+  actualizarParedEstrato(nombreEstrato);
   if($('estrato').textContent !== nombreEstrato){
     $('estrato').textContent = nombreEstrato;
     $('estratoPerfil').textContent = nombreEstrato;
@@ -1187,14 +1203,14 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 44;
+const VERSION = 45;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=44').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=45').catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
     if(e.data === 'actualizado') location.reload();
