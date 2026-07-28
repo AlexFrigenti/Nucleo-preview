@@ -576,26 +576,26 @@ section{margin-bottom:26px}
 /* La pared representa una sola formación: el pozo entra en ella y solo cambia
    al cruzar una frontera real de profundidad. El perfil inferior conserva el
    mapa completo de la Tierra. */
-.estrato-corteza{background:#31494a}.estrato-corteza::before{opacity:.92;background:
-  /* placas de granito y gneis: masas irregulares, no rayas decorativas */
-  radial-gradient(ellipse 76px 47px at 5% 12%,rgba(111,137,132,.56) 0 40%,transparent 42%),
-  radial-gradient(ellipse 100px 62px at 33% 7%,rgba(42,67,69,.76) 0 47%,transparent 49%),
-  radial-gradient(ellipse 88px 64px at 67% 20%,rgba(101,124,116,.48) 0 45%,transparent 47%),
-  radial-gradient(ellipse 102px 58px at 98% 10%,rgba(31,52,56,.8) 0 47%,transparent 49%),
-  radial-gradient(ellipse 92px 70px at 14% 59%,rgba(37,61,63,.82) 0 46%,transparent 48%),
-  radial-gradient(ellipse 110px 69px at 52% 55%,rgba(121,139,126,.42) 0 43%,transparent 46%),
-  radial-gradient(ellipse 86px 62px at 84% 62%,rgba(39,61,64,.78) 0 46%,transparent 48%),
-  radial-gradient(ellipse 104px 63px at 28% 102%,rgba(98,121,113,.44) 0 43%,transparent 46%),
-  radial-gradient(ellipse 98px 66px at 73% 105%,rgba(34,55,58,.85) 0 46%,transparent 48%);
-  background-size:280px 240px;background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0}.estrato-corteza::after{opacity:.72;mix-blend-mode:normal;background:
-  /* juntas de roca, vetas de cuarzo y grano mineral */
-  repeating-linear-gradient(127deg,transparent 0 37px,rgba(8,18,20,.56) 38px 40px,transparent 41px 83px),
-  repeating-linear-gradient(32deg,transparent 0 58px,rgba(203,218,200,.18) 59px 60px,transparent 61px 123px),
-  radial-gradient(circle at 12% 22%,rgba(212,222,198,.28) 0 1px,transparent 2px),
-  radial-gradient(circle at 28% 70%,rgba(18,33,37,.5) 0 2px,transparent 3px),
-  radial-gradient(circle at 74% 34%,rgba(192,206,183,.2) 0 1px,transparent 2px),
-  radial-gradient(circle at 91% 78%,rgba(13,28,31,.48) 0 2px,transparent 3px);
-  background-size:156px 128px,204px 178px,71px 63px,93px 82px,83px 74px,117px 96px}.estrato-corteza i:nth-child(1),.estrato-corteza i:nth-child(2){width:0;height:0;border-style:solid;opacity:.63;filter:drop-shadow(1px 1px 0 rgba(185,201,186,.1))}.estrato-corteza i:nth-child(1){left:6%;top:31%;border-width:0 0 56px 46px;border-color:transparent transparent rgba(9,21,23,.48) transparent;transform:rotate(-13deg)}.estrato-corteza i:nth-child(2){right:5%;top:46%;border-width:48px 38px 0 0;border-color:rgba(13,25,27,.5) transparent transparent transparent;transform:rotate(16deg)}.estrato-corteza i:nth-child(3),.estrato-corteza i:nth-child(4){width:5px;height:5px;border-radius:1px;background:rgba(222,229,207,.35);box-shadow:28px 17px 0 rgba(17,33,36,.47),64px 44px 0 rgba(211,222,193,.22),112px 10px 0 rgba(14,28,31,.5),158px 49px 0 rgba(217,224,199,.18),207px 22px 0 rgba(12,25,28,.5),257px 61px 0 rgba(206,219,194,.2);opacity:.58}.estrato-corteza i:nth-child(3){left:2%;top:14%;transform:rotate(21deg)}.estrato-corteza i:nth-child(4){right:7%;top:72%;transform:scale(.75) rotate(-14deg);opacity:.46}
+.estrato-corteza{
+  /* Textura real repetible; solo se aplica a la pared del estrato activo. */
+  background-color:#10272d;
+  background-image:url('../assets/textures/corteza-continental-realista-1024.webp');
+  background-repeat:repeat;
+  background-position:center;
+  background-size:760px 760px;
+}
+.estrato-corteza::before{
+  /* Oscurece la imagen y la integra con la paleta azul petróleo de la instalación. */
+  opacity:1;
+  background:linear-gradient(135deg,rgba(3,15,20,.54),rgba(10,48,58,.38) 52%,rgba(2,10,14,.62));
+  mix-blend-mode:multiply;
+}
+.estrato-corteza::after{
+  opacity:1;
+  mix-blend-mode:normal;
+  background:radial-gradient(ellipse at center,transparent 28%,rgba(1,10,14,.18) 70%,rgba(1,7,10,.55) 100%);
+}
+.estrato-corteza i{display:none}
 .estrato-manto-superior{background:#3f4336}.estrato-manto-superior::before{background:repeating-linear-gradient(171deg,rgba(185,173,121,.19) 0 2px,transparent 2px 13px),repeating-linear-gradient(12deg,transparent 0 26px,rgba(13,17,13,.37) 27px 30px,transparent 31px 49px)}.estrato-manto-superior::after{background:radial-gradient(ellipse at 22% 42%,rgba(176,184,92,.25),transparent 28%),radial-gradient(ellipse at 83% 60%,rgba(220,193,103,.15),transparent 34%)}
 .estrato-zona-de-transicion{background:#71513a}.estrato-zona-de-transicion::before{background:repeating-linear-gradient(142deg,rgba(238,174,81,.2) 0 2px,transparent 2px 12px),repeating-linear-gradient(35deg,transparent 0 38px,rgba(32,20,14,.4) 39px 43px,transparent 44px 63px)}.estrato-zona-de-transicion::after{background:radial-gradient(circle at 30% 30%,rgba(252,205,109,.28) 0 2px,transparent 4px),radial-gradient(circle at 68% 65%,rgba(255,136,55,.25) 0 2px,transparent 5px)}
 .estrato-manto-inferior{background:#653b32}.estrato-manto-inferior::before{background:repeating-linear-gradient(164deg,rgba(226,117,71,.19) 0 2px,transparent 2px 14px),repeating-linear-gradient(8deg,transparent 0 24px,rgba(44,16,16,.45) 25px 28px,transparent 29px 47px)}.estrato-manto-inferior::after{background:radial-gradient(ellipse at 18% 70%,rgba(246,132,63,.23),transparent 34%),radial-gradient(ellipse at 79% 25%,rgba(209,77,55,.22),transparent 32%)}
@@ -676,6 +676,3 @@ section{margin-bottom:26px}
 
 /* Punto 5 · Registro útil: colección, resultados y decisiones en un mismo archivo. */
 .registro-cab{margin-bottom:12px}.registro-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 0 14px}.registro-resumen>div{padding:10px 7px;border:1px solid var(--borde-instrumento);background:rgba(8,16,22,.72);text-align:center}.registro-resumen span,.registro-resumen small{display:block;font:8px var(--mono);letter-spacing:.055em;color:var(--tenue)}.registro-resumen strong{display:block;margin:5px 0 3px;font:600 13px var(--mono);color:var(--frio);white-space:nowrap}.registro-panel{margin:0 0 18px;padding:12px;border:1px solid var(--borde-instrumento);background:linear-gradient(145deg,rgba(12,23,30,.68),rgba(17,23,31,.4))}.pozo-archivo{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:10px 2px;border-top:1px solid var(--linea)}.pozo-archivo:first-child{border-top:0}.pozo-archivo strong,.pozo-archivo span,.pozo-archivo small{display:block}.pozo-archivo strong{font:600 10px var(--mono);letter-spacing:.07em;color:var(--frio)}.pozo-archivo span,.pozo-archivo small{margin-top:3px;font-size:10px;line-height:1.35;color:var(--tenue)}.pozo-archivo b{font:600 10px var(--mono);color:var(--calor);align-self:start}.pozo-archivo small{grid-column:1/-1}.bitacora-item{display:grid;grid-template-columns:10px 1fr;gap:8px;padding:10px 2px;border-top:1px solid var(--linea)}.bitacora-item:first-child{border-top:0}.bitacora-item>i{width:6px;height:6px;margin-top:5px;border-radius:50%;background:var(--frio);box-shadow:0 0 7px var(--frio)}.bitacora-item.recuperada>i,.bitacora-item.delta>i{background:var(--calor);box-shadow:0 0 7px var(--calor)}.bitacora-item strong,.bitacora-item span,.bitacora-item small{display:block}.bitacora-item strong{font:600 10px var(--mono);letter-spacing:.06em;color:var(--texto)}.bitacora-item span{margin-top:3px;font:8px var(--mono);letter-spacing:.04em;color:var(--frio)}.bitacora-item small{margin-top:4px;font-size:10px;line-height:1.35;color:var(--tenue)}
-
-/* v47 · corteza continental: bloques, juntas y vetas visibles a escala móvil */
-.estrato-corteza{background:#354a46}.estrato-corteza::before{opacity:1;background:linear-gradient(122deg,transparent 0 13%,rgba(18,34,35,.86) 13.5% 14.4%,transparent 15% 100%),linear-gradient(64deg,transparent 0 42%,rgba(14,29,31,.82) 42.5% 43.5%,transparent 44% 100%),linear-gradient(152deg,transparent 0 69%,rgba(16,31,32,.8) 69.5% 70.5%,transparent 71% 100%),radial-gradient(ellipse 102px 78px at 12% 16%,#6f887e 0 44%,transparent 45%),radial-gradient(ellipse 132px 86px at 63% 10%,#28494b 0 45%,transparent 46%),radial-gradient(ellipse 116px 92px at 101% 38%,#647c70 0 45%,transparent 46%),radial-gradient(ellipse 128px 94px at 26% 73%,#234448 0 45%,transparent 46%),radial-gradient(ellipse 124px 88px at 75% 79%,#789080 0 43%,transparent 44%);background-size:100% 100%}.estrato-corteza::after{opacity:.86;mix-blend-mode:normal;background:linear-gradient(148deg,transparent 0 22%,rgba(210,223,198,.38) 22.4% 22.9%,transparent 23.4% 100%),linear-gradient(148deg,transparent 0 57%,rgba(218,227,205,.3) 57.4% 57.8%,transparent 58.3% 100%),linear-gradient(31deg,transparent 0 75%,rgba(180,197,171,.28) 75.4% 75.8%,transparent 76.2% 100%),radial-gradient(circle at 17% 31%,rgba(218,222,191,.5) 0 2px,transparent 2.5px),radial-gradient(circle at 34% 63%,rgba(16,35,37,.7) 0 3px,transparent 3.7px),radial-gradient(circle at 82% 24%,rgba(217,224,195,.42) 0 2px,transparent 2.7px),radial-gradient(circle at 89% 71%,rgba(17,33,34,.72) 0 3px,transparent 3.7px);background-size:100% 100%}.estrato-corteza i{border:1px solid rgba(156,181,166,.23);background:linear-gradient(135deg,rgba(125,151,136,.45),rgba(23,48,50,.74));box-shadow:inset 7px 8px 13px rgba(205,221,194,.08),inset -7px -8px 13px rgba(0,0,0,.35),0 4px 8px rgba(0,0,0,.28);clip-path:polygon(12% 0,84% 5%,100% 37%,76% 100%,16% 89%,0 31%);opacity:.88}.estrato-corteza i:nth-child(1){left:-7%;top:31%;width:78px;height:69px;transform:rotate(-11deg)}.estrato-corteza i:nth-child(2){right:-4%;top:48%;width:104px;height:78px;transform:rotate(9deg)}.estrato-corteza i:nth-child(3){left:13%;bottom:-8%;width:96px;height:74px;transform:rotate(7deg)}.estrato-corteza i:nth-child(4){right:26%;top:8%;width:52px;height:47px;transform:rotate(-16deg);opacity:.6}
