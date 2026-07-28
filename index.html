@@ -5,12 +5,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Núcleo">
 <meta name="theme-color" content="#0E1218">
-<link rel="manifest" href="./manifest.webmanifest?v=41">
+<link rel="manifest" href="./manifest.webmanifest?v=42">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <title>Núcleo</title>
 
-<link rel="stylesheet" href="./styles/app.css?v=41">
+<link rel="stylesheet" href="./styles/app.css?v=42">
 
 <div id="actualiza"></div>
 <div id="offline"></div>
@@ -33,10 +33,15 @@
       <section class="planta-sondeo escena-pozo" aria-label="Instalación de extracción del pozo">
         <div class="planta-cab"><span>POZO OPERATIVO · CIRCUITO CERRADO</span><b id="estrato">CORTEZA CONTINENTAL</b></div>
         <div class="escena-superficie">
-          <div class="maquina-superficie turbina"><span class="rotor" aria-hidden="true">✣</span><small>TURBINA DE RETORNO</small><b id="plantaTurbina">×0</b></div>
-          <div class="colector-nucleo"><i class="pulso-ambar"></i><i class="pulso-cian"></i><span>COLECTOR</span></div>
-          <div class="maquina-superficie inter"><span class="placas" aria-hidden="true">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
-          <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
+          <div class="proceso-superficie" aria-label="Retorno, conversión y suministro de energía">
+            <div class="puerto-proceso puerto-retorno"><i></i><span>RETORNO<br>DEL POZO</span></div>
+            <div class="maquina-superficie turbina"><span class="rotor" aria-hidden="true">✣</span><small>TURBINA</small><b id="plantaTurbina">×0</b></div>
+            <div class="tramo-proceso ambar" aria-hidden="true"><i></i><i></i></div>
+            <div class="maquina-superficie inter"><span class="placas" aria-hidden="true">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
+            <div class="tramo-proceso cian" aria-hidden="true"><i></i><i></i></div>
+            <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
+            <div class="puerto-proceso puerto-suministro"><i></i><span>SUMINISTRO<br>AL CABEZAL</span></div>
+          </div>
         </div>
         <div class="planta-pozo">
           <div class="estratos-corte" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
