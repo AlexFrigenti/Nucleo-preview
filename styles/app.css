@@ -576,7 +576,7 @@ section{margin-bottom:26px}
 /* La pared representa una sola formación: el pozo entra en ella y solo cambia
    al cruzar una frontera real de profundidad. El perfil inferior conserva el
    mapa completo de la Tierra. */
-.estrato-corteza{
+.estrato-corteza,.estrato-corteza-continental{
   /* Textura real repetible; solo se aplica a la pared del estrato activo. */
   background-color:#10272d;
   background-image:url('../assets/textures/corteza-continental-realista-1024.webp');
@@ -584,18 +584,18 @@ section{margin-bottom:26px}
   background-position:center;
   background-size:760px 760px;
 }
-.estrato-corteza::before{
+.estrato-corteza::before,.estrato-corteza-continental::before{
   /* Oscurece la imagen y la integra con la paleta azul petróleo de la instalación. */
   opacity:1;
-  background:linear-gradient(135deg,rgba(3,15,20,.54),rgba(10,48,58,.38) 52%,rgba(2,10,14,.62));
+  background:linear-gradient(135deg,rgba(3,15,20,.34),rgba(10,48,58,.24) 52%,rgba(2,10,14,.42));
   mix-blend-mode:multiply;
 }
-.estrato-corteza::after{
+.estrato-corteza::after,.estrato-corteza-continental::after{
   opacity:1;
   mix-blend-mode:normal;
-  background:radial-gradient(ellipse at center,transparent 28%,rgba(1,10,14,.18) 70%,rgba(1,7,10,.55) 100%);
+  background:radial-gradient(ellipse at center,transparent 34%,rgba(1,10,14,.12) 73%,rgba(1,7,10,.38) 100%);
 }
-.estrato-corteza i{display:none}
+.estrato-corteza i,.estrato-corteza-continental i{display:none}
 .estrato-manto-superior{background:#3f4336}.estrato-manto-superior::before{background:repeating-linear-gradient(171deg,rgba(185,173,121,.19) 0 2px,transparent 2px 13px),repeating-linear-gradient(12deg,transparent 0 26px,rgba(13,17,13,.37) 27px 30px,transparent 31px 49px)}.estrato-manto-superior::after{background:radial-gradient(ellipse at 22% 42%,rgba(176,184,92,.25),transparent 28%),radial-gradient(ellipse at 83% 60%,rgba(220,193,103,.15),transparent 34%)}
 .estrato-zona-de-transicion{background:#71513a}.estrato-zona-de-transicion::before{background:repeating-linear-gradient(142deg,rgba(238,174,81,.2) 0 2px,transparent 2px 12px),repeating-linear-gradient(35deg,transparent 0 38px,rgba(32,20,14,.4) 39px 43px,transparent 44px 63px)}.estrato-zona-de-transicion::after{background:radial-gradient(circle at 30% 30%,rgba(252,205,109,.28) 0 2px,transparent 4px),radial-gradient(circle at 68% 65%,rgba(255,136,55,.25) 0 2px,transparent 5px)}
 .estrato-manto-inferior{background:#653b32}.estrato-manto-inferior::before{background:repeating-linear-gradient(164deg,rgba(226,117,71,.19) 0 2px,transparent 2px 14px),repeating-linear-gradient(8deg,transparent 0 24px,rgba(44,16,16,.45) 25px 28px,transparent 29px 47px)}.estrato-manto-inferior::after{background:radial-gradient(ellipse at 18% 70%,rgba(246,132,63,.23),transparent 34%),radial-gradient(ellipse at 79% 25%,rgba(209,77,55,.22),transparent 32%)}
