@@ -1227,17 +1227,17 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 56;
+const VERSION = 58;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=57', { updateViaCache: 'none' }).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=58', { updateViaCache: 'none' }).catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
-    if(e.data === 'actualizado') location.reload();
+    if(e.data === 'actualizado') location.replace('./?v=' + VERSION);
   });
 }
 
@@ -1255,9 +1255,9 @@ function comprobarActualizacion(){
           const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
           if(sw){
             sw.postMessage('actualizar');
-            setTimeout(()=>location.reload(), 2000); // red de seguridad
+            setTimeout(()=>location.replace('./?v=' + VERSION), 2000); // red de seguridad
           }else{
-            location.reload();
+            location.replace('./?v=' + VERSION);
           }
         };
       }
