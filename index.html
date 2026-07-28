@@ -5,12 +5,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Núcleo">
 <meta name="theme-color" content="#0E1218">
-<link rel="manifest" href="./manifest.webmanifest?v=42">
+<link rel="manifest" href="./manifest.webmanifest?v=43">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <title>Núcleo</title>
 
-<link rel="stylesheet" href="./styles/app.css?v=42">
+<link rel="stylesheet" href="./styles/app.css?v=43">
 
 <div id="actualiza"></div>
 <div id="offline"></div>
@@ -35,9 +35,15 @@
         <div class="escena-superficie">
           <div class="proceso-superficie" aria-label="Retorno, conversión y suministro de energía">
             <div class="puerto-proceso puerto-retorno"><i></i><span>RETORNO<br>DEL POZO</span></div>
-            <div class="maquina-superficie turbina"><span class="rotor" aria-hidden="true">✣</span><small>TURBINA</small><b id="plantaTurbina">×0</b></div>
+            <div class="maquina-superficie turbina">
+              <div class="maquina-ilustracion turbina-ilustracion" aria-hidden="true"><i class="brida entrada"></i><i class="voluta"><i class="alabes"></i><i class="buje"></i></i><i class="eje"></i><i class="generador"></i></div>
+              <div class="placa-maquina"><small>TURBINA</small><b id="plantaTurbina">×0</b></div>
+            </div>
             <div class="tramo-proceso ambar" aria-hidden="true"><i></i><i></i></div>
-            <div class="maquina-superficie inter"><span class="placas" aria-hidden="true">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
+            <div class="maquina-superficie inter">
+              <div class="maquina-ilustracion inter-ilustracion" aria-hidden="true"><i class="colector superior"></i><i class="colector inferior"></i><i class="nucleo-placas"></i><i class="valvula entrada"></i><i class="valvula salida"></i></div>
+              <div class="placa-maquina"><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
+            </div>
             <div class="tramo-proceso cian" aria-hidden="true"><i></i><i></i></div>
             <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
             <div class="puerto-proceso puerto-suministro"><i></i><span>SUMINISTRO<br>AL CABEZAL</span></div>
