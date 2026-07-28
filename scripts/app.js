@@ -977,6 +977,7 @@ function dibujar(jps){
   $('plantaSonda').textContent = '×' + (s.mod.sonda || 0);
   $('plantaTurbina').textContent = '×' + (s.mod.turbina || 0);
   $('plantaInter').textContent = '×' + (s.mod.inter || 0);
+  actualizarModulosEscena();
 
   // anillo: avance hacia el siguiente isótopo
   const actual = isotoposAlRecalibrar();
@@ -1003,6 +1004,26 @@ function dibujar(jps){
   const laboratorio = totalMuestrasPendientes() ? ' · '+totalMuestrasPendientes()+' muestra'+(totalMuestrasPendientes()>1?'s':'')+' en custodia' : '';
   $('isotopos').textContent = (s.isotopos ? s.isotopos+' isótopos · ×'+fmt(multIso) : 'sin isótopos') + laboratorio;
   dibujarEquipo(jps);
+}
+
+// Cada módulo de producción toma una posición física en la instalación. No se
+// dibujan por adelantado: la escena crece cuando el jugador los desbloquea.
+function actualizarModulosEscena(){
+  const modulosEscena = [
+    ['bucle', 'moduloBucle', 'plantaBucle'],
+    ['pozo', 'moduloPozo', 'plantaPozo'],
+    ['manto', 'moduloDiamante', 'plantaDiamante'],
+    ['externo', 'moduloSonico', 'plantaSonico'],
+    ['interno', 'moduloParticulas', 'plantaParticulas'],
+    ['plasma', 'moduloPlasma', 'plantaPlasma']
+  ];
+  modulosEscena.forEach(([id, escenaId, contadorId]) => {
+    const cantidad = s.mod[id] || 0;
+    const pieza = $(escenaId);
+    pieza.classList.toggle('activo', cantidad > 0);
+    pieza.style.setProperty('--cantidad-modulo', Math.min(cantidad, 99));
+    $(contadorId).textContent = '×' + cantidad;
+  });
 }
 
 function dibujarEquipo(jps){
@@ -1166,14 +1187,14 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 43;
+const VERSION = 44;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=40').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=44').catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
     if(e.data === 'actualizado') location.reload();
