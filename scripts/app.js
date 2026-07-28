@@ -931,7 +931,6 @@ function pintarGrafica(){
    necesitan 60 escrituras DOM por segundo y la batería del móvil lo agradece. */
 let ultimo = performance.now(), acumTic = 0, acumGuardado = 0, acumRender = 0;
 let senalDurActual = null, rafId = null, motorPausado = false;
-let duracionPerforacionActual = null;
 const INTERVALO_RENDER = .1;
 
 function bucle(ahora){
@@ -982,29 +981,6 @@ function dibujar(jps){
   $('prof').textContent = fmtProfundidad(profM);
   const nombreEstrato = estratoDe(profM);
   actualizarParedEstrato(nombreEstrato);
-  // La pared solo se desplaza con extracción real; la perforadora permanece fija.
-  // La velocidad usa una escala logarítmica: responde a la producción sin parecer
-  // una cinta transportadora cuando el jugador alcanza tasas altas.
-  const pared = $('paredEstrato');
-  const polvoMineral = $('polvoMineral');
-  const perforando = jps > 0;
-  pared.classList.toggle('perforacion-activa', perforando);
-  polvoMineral.classList.toggle('perforacion-activa', perforando);
-  if(perforando){
-    const intensidad = Math.min(1, Math.log10(jps + 1) / 6);
-    const descenso = (28 - intensidad * 14).toFixed(1) + 's';
-    const polvo = (7.5 - intensidad * 3).toFixed(1) + 's';
-    const clave = descenso + '|' + polvo;
-    if(clave !== duracionPerforacionActual){
-      duracionPerforacionActual = clave;
-      pared.style.setProperty('--descenso-duracion', descenso);
-      polvoMineral.style.setProperty('--polvo-duracion', polvo);
-    }
-  }else if(duracionPerforacionActual !== null){
-    duracionPerforacionActual = null;
-    pared.style.removeProperty('--descenso-duracion');
-    polvoMineral.style.removeProperty('--polvo-duracion');
-  }
   if($('estrato').textContent !== nombreEstrato){
     $('estrato').textContent = nombreEstrato;
     $('estratoPerfil').textContent = nombreEstrato;
@@ -1227,17 +1203,17 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 58;
+const VERSION = 53;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=58', { updateViaCache: 'none' }).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=52').catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
-    if(e.data === 'actualizado') location.replace('./?v=' + VERSION);
+    if(e.data === 'actualizado') location.reload();
   });
 }
 
@@ -1255,9 +1231,9 @@ function comprobarActualizacion(){
           const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
           if(sw){
             sw.postMessage('actualizar');
-            setTimeout(()=>location.replace('./?v=' + VERSION), 2000); // red de seguridad
+            setTimeout(()=>location.reload(), 2000); // red de seguridad
           }else{
-            location.replace('./?v=' + VERSION);
+            location.reload();
           }
         };
       }

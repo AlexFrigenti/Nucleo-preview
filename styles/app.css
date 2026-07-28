@@ -523,12 +523,7 @@ section{margin-bottom:26px}
 .aplicacion-pausada #halo,
 .aplicacion-pausada .estado-sistema i,
 .aplicacion-pausada .panel-estado i,
-.aplicacion-pausada #puntoGrafica,
-.aplicacion-pausada #paredEstrato{animation-play-state:paused}
-
-@media (prefers-reduced-motion:reduce){
-  #paredEstrato.perforacion-activa,#polvoMineral.perforacion-activa i{animation:none!important}
-}
+.aplicacion-pausada #puntoGrafica{animation-play-state:paused}
 
 /* Fuera de Sondeo el radar no debe consumir composición ni batería: la página
    queda oculta, pero pausamos explícitamente sus animaciones persistentes. */
@@ -584,16 +579,10 @@ section{margin-bottom:26px}
 .estrato-corteza,.estrato-corteza-continental{
   /* Textura real repetible; solo se aplica a la pared del estrato activo. */
   background-color:#121d20;
-  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=58');
+  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=53');
   background-repeat:repeat;
   background-position:center top;
   background-size:760px 760px;
-}
-/* Durante la extracción, la roca asciende una baldosa completa: el bucle es
-   imperceptible y hace que la perforadora fija parezca descender. */
-@keyframes descenso-geologico{to{background-position:center -760px}}
-.estrato-corteza.perforacion-activa,.estrato-corteza-continental.perforacion-activa{
-  animation:descenso-geologico var(--descenso-duracion,28s) linear infinite;
 }
 .estrato-corteza::before,.estrato-corteza-continental::before{
   /* Oscurece la imagen y la integra con la paleta azul petróleo de la instalación. */
@@ -606,22 +595,7 @@ section{margin-bottom:26px}
   mix-blend-mode:normal;
   background:radial-gradient(ellipse at center,transparent 34%,rgba(1,10,14,.08) 73%,rgba(1,7,10,.26) 100%);
 }
-/* Polvo visible alrededor del cabezal, por delante de la maquinaria. */
-#polvoMineral{position:absolute;z-index:7;inset:0;pointer-events:none;display:none}
-#polvoMineral.perforacion-activa{display:block}
-#polvoMineral i{position:absolute;width:5px;height:5px;border-radius:50%;opacity:0;background:rgba(227,238,228,.88);box-shadow:0 0 8px rgba(240,162,46,.55);animation:polvo-mineral var(--polvo-duracion,7.5s) linear infinite}
-#polvoMineral i:nth-child(1){left:39%;top:75%;animation-delay:-.8s}
-#polvoMineral i:nth-child(2){left:61%;top:79%;width:4px;height:4px;background:rgba(240,174,67,.9);animation-delay:-2.1s}
-#polvoMineral i:nth-child(3){left:35%;top:86%;width:3px;height:3px;animation-delay:-3.8s}
-#polvoMineral i:nth-child(4){left:65%;top:88%;width:4px;height:4px;background:rgba(114,204,215,.82);animation-delay:-5s}
-#polvoMineral i:nth-child(5){left:43%;top:91%;width:3px;height:3px;background:rgba(240,174,67,.82);animation-delay:-6.2s}
-#polvoMineral i:nth-child(6){left:57%;top:84%;width:3px;height:3px;animation-delay:-4.4s}
-@keyframes polvo-mineral{
-  0%{transform:translate3d(0,0,0) scale(.6);opacity:0}
-  14%{opacity:.62}
-  68%{opacity:.34}
-  100%{transform:translate3d(12px,-94px,0) scale(.25);opacity:0}
-}
+.estrato-corteza i,.estrato-corteza-continental i{display:none}
 .estrato-manto-superior{background:#3f4336}.estrato-manto-superior::before{background:repeating-linear-gradient(171deg,rgba(185,173,121,.19) 0 2px,transparent 2px 13px),repeating-linear-gradient(12deg,transparent 0 26px,rgba(13,17,13,.37) 27px 30px,transparent 31px 49px)}.estrato-manto-superior::after{background:radial-gradient(ellipse at 22% 42%,rgba(176,184,92,.25),transparent 28%),radial-gradient(ellipse at 83% 60%,rgba(220,193,103,.15),transparent 34%)}
 .estrato-zona-de-transicion{background:#71513a}.estrato-zona-de-transicion::before{background:repeating-linear-gradient(142deg,rgba(238,174,81,.2) 0 2px,transparent 2px 12px),repeating-linear-gradient(35deg,transparent 0 38px,rgba(32,20,14,.4) 39px 43px,transparent 44px 63px)}.estrato-zona-de-transicion::after{background:radial-gradient(circle at 30% 30%,rgba(252,205,109,.28) 0 2px,transparent 4px),radial-gradient(circle at 68% 65%,rgba(255,136,55,.25) 0 2px,transparent 5px)}
 .estrato-manto-inferior{background:#653b32}.estrato-manto-inferior::before{background:repeating-linear-gradient(164deg,rgba(226,117,71,.19) 0 2px,transparent 2px 14px),repeating-linear-gradient(8deg,transparent 0 24px,rgba(44,16,16,.45) 25px 28px,transparent 29px 47px)}.estrato-manto-inferior::after{background:radial-gradient(ellipse at 18% 70%,rgba(246,132,63,.23),transparent 34%),radial-gradient(ellipse at 79% 25%,rgba(209,77,55,.22),transparent 32%)}
