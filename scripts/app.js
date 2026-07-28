@@ -931,6 +931,7 @@ function pintarGrafica(){
    necesitan 60 escrituras DOM por segundo y la batería del móvil lo agradece. */
 let ultimo = performance.now(), acumTic = 0, acumGuardado = 0, acumRender = 0;
 let senalDurActual = null, rafId = null, motorPausado = false;
+let duracionPerforacionActual = null;
 const INTERVALO_RENDER = .1;
 
 function bucle(ahora){
@@ -982,7 +983,26 @@ function dibujar(jps){
   const nombreEstrato = estratoDe(profM);
   actualizarParedEstrato(nombreEstrato);
   // La pared solo se desplaza con extracción real; la perforadora permanece fija.
-  $('paredEstrato').classList.toggle('perforacion-activa', jps > 0);
+  // La velocidad usa una escala logarítmica: responde a la producción sin parecer
+  // una cinta transportadora cuando el jugador alcanza tasas altas.
+  const pared = $('paredEstrato');
+  const perforando = jps > 0;
+  pared.classList.toggle('perforacion-activa', perforando);
+  if(perforando){
+    const intensidad = Math.min(1, Math.log10(jps + 1) / 6);
+    const descenso = (28 - intensidad * 10).toFixed(1) + 's';
+    const polvo = (10 - intensidad * 3.5).toFixed(1) + 's';
+    const clave = descenso + '|' + polvo;
+    if(clave !== duracionPerforacionActual){
+      duracionPerforacionActual = clave;
+      pared.style.setProperty('--descenso-duracion', descenso);
+      pared.style.setProperty('--polvo-duracion', polvo);
+    }
+  }else if(duracionPerforacionActual !== null){
+    duracionPerforacionActual = null;
+    pared.style.removeProperty('--descenso-duracion');
+    pared.style.removeProperty('--polvo-duracion');
+  }
   if($('estrato').textContent !== nombreEstrato){
     $('estrato').textContent = nombreEstrato;
     $('estratoPerfil').textContent = nombreEstrato;
@@ -1205,14 +1225,14 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 55;
+const VERSION = 56;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=55', { updateViaCache: 'none' }).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=56', { updateViaCache: 'none' }).catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
     if(e.data === 'actualizado') location.reload();
