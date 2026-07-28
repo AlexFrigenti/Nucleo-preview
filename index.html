@@ -5,12 +5,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Núcleo">
 <meta name="theme-color" content="#0E1218">
-<link rel="manifest" href="./manifest.webmanifest?v=40">
+<link rel="manifest" href="./manifest.webmanifest?v=41">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <title>Núcleo</title>
 
-<link rel="stylesheet" href="./styles/app.css?v=40">
+<link rel="stylesheet" href="./styles/app.css?v=41">
 
 <div id="actualiza"></div>
 <div id="offline"></div>
@@ -30,23 +30,23 @@
 
       <div id="senal"><span class="senal-lbl">SEÑAL DE FONDO · CANAL 03</span></div>
 
-      <section class="planta-sondeo" aria-label="Circuito operativo del pozo">
-        <div class="planta-cab"><span>RED DE EXTRACCIÓN · CIRCUITO ACTIVO</span><b id="estrato">CORTEZA CONTINENTAL</b></div>
-        <div class="planta-superficie">
-          <div class="modulo-fisico turbina"><span class="modulo-icono">◌</span><small>TURBINA</small><b id="plantaTurbina">×0</b></div>
-          <div class="modulo-fisico inter"><span class="modulo-icono">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
+      <section class="planta-sondeo escena-pozo" aria-label="Instalación de extracción del pozo">
+        <div class="planta-cab"><span>POZO OPERATIVO · CIRCUITO CERRADO</span><b id="estrato">CORTEZA CONTINENTAL</b></div>
+        <div class="escena-superficie">
+          <div class="maquina-superficie turbina"><span class="rotor" aria-hidden="true">✣</span><small>TURBINA DE RETORNO</small><b id="plantaTurbina">×0</b></div>
+          <div class="colector-nucleo"><i class="pulso-ambar"></i><i class="pulso-cian"></i><span>COLECTOR</span></div>
+          <div class="maquina-superficie inter"><span class="placas" aria-hidden="true">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
           <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
         </div>
-        <div class="planta-circuito">
-          <div class="linea-retorno"><span>RETORNO GEOTÉRMICO</span><i></i><i></i><i></i></div>
-          <div class="colector-superficie" aria-hidden="true"><b>COLECTOR</b><i></i><i></i></div>
-          <div class="linea-suministro"><span>SUMINISTRO AL CABEZAL</span><i></i><i></i><i></i></div>
-        </div>
         <div class="planta-pozo">
-          <div class="pared-geologica"><span>CAPA ACTUAL</span><b id="prof">0 m</b><em></em></div>
-          <div class="conducto"><div class="conducto-retorno"></div><div class="conducto-suministro"></div></div>
-          <div class="acople-cabezal acople-retorno" aria-hidden="true"><i></i></div>
-          <div class="acople-cabezal acople-suministro" aria-hidden="true"><i></i></div>
+          <div class="estratos-corte" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="marcador-capa"><span>PROFUNDIDAD ACTUAL</span><b id="prof">0 m</b><small>FORMACIÓN ACTIVA</small></div>
+          <div class="boca-pozo" aria-hidden="true"><span>PLATAFORMA 03</span></div>
+          <div class="revestimiento" aria-hidden="true">
+            <div class="conducto-retorno"><i></i><i></i><i></i></div>
+            <div class="conducto-suministro"><i></i><i></i><i></i></div>
+          </div>
+          <div class="etiqueta-flujo retorno">↑ RETORNO</div><div class="etiqueta-flujo suministro">↓ SUMINISTRO</div>
           <div id="nucleo" aria-label="Extraer energía manualmente">
             <div id="halo"></div>
             <svg id="anillo" viewBox="0 0 200 200" aria-hidden="true">
@@ -59,9 +59,9 @@
             <div id="lectura"><span class="lectura-etiqueta">CABEZA DE PERFORACIÓN</span><div id="restante">TOCAR · SONDEO ACTIVO</div></div>
             <span class="radar-accion">IMPULSO MANUAL</span>
           </div>
-          <div class="modulo-cabezal"><span>SONDA TÉRMICA</span><b id="plantaSonda">×0</b><small>CAPTACIÓN</small></div>
+          <div class="modulo-cabezal"><span>SONDA TÉRMICA</span><b id="plantaSonda">×0</b><small>CAPTACIÓN PROFUNDA</small></div>
         </div>
-        <div class="planta-leyenda"><span><i class="ambar"></i> CARGA RECUPERADA</span><span><i class="cian"></i> TRABAJO DE POZO</span><b id="plantaObjetivo">PRÓXIMA FIRMA · FE-57</b></div>
+        <div class="planta-leyenda"><span><i class="ambar"></i> ENERGÍA RECUPERADA</span><span><i class="cian"></i> TRABAJO APLICADO</span><b id="plantaObjetivo">PRÓXIMA FIRMA · FE-57</b></div>
       </section>
 
       <div class="sondeo-instrumentos">
