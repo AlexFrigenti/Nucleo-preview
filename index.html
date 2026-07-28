@@ -30,35 +30,38 @@
 
       <div id="senal"><span class="senal-lbl">SEÑAL DE FONDO · CANAL 03</span></div>
 
-      <div class="sondeo-instrumentos">
-        <div id="nucleo" aria-label="Extraer energía manualmente">
-          <div id="halo"></div>
-          <svg id="anillo" viewBox="0 0 200 200" aria-hidden="true">
-            <defs>
-              <linearGradient id="arcoRadar" x1="0" x2="1"><stop stop-color="#4FC3D9"/><stop offset="1" stop-color="#F0A22E"/></linearGradient>
-            </defs>
-            <circle class="radar-radial r1" cx="100" cy="100" r="78"/>
-            <circle class="radar-radial r2" cx="100" cy="100" r="58"/>
-            <circle class="radar-radial r3" cx="100" cy="100" r="38"/>
-            <g class="marcas-radar">
-              <path d="M100 8v10M100 182v10M8 100h10M182 100h10M35 35l7 7M158 158l7 7M35 165l7-7M158 42l7-7"/>
-            </g>
-            <path id="radarBarrido" d="M100 100 L100 18 A82 82 0 0 1 165 50 Z"/>
-            <circle class="pista" cx="100" cy="100" r="88"/>
-            <circle class="carga" cx="100" cy="100" r="88"
-                    transform="rotate(-90 100 100)" stroke-dasharray="553" stroke-dashoffset="553"/>
-            <circle class="centro-radar" cx="100" cy="100" r="5"/>
-          </svg>
-          <div id="lectura">
-            <span class="lectura-etiqueta">ENERGÍA DISPONIBLE</span>
-            <div id="julios">0</div>
-            <div id="tasa">0 J/s</div>
-            <div id="prof">0 m</div>
-            <div id="restante">toca para extraer</div>
-          </div>
-          <span class="radar-accion">TOCAR · EXTRAER</span>
+      <section class="planta-sondeo" aria-label="Circuito operativo del pozo">
+        <div class="planta-cab"><span>RED DE EXTRACCIÓN · CIRCUITO ACTIVO</span><b id="estrato">CORTEZA CONTINENTAL</b></div>
+        <div class="planta-superficie">
+          <div class="modulo-fisico turbina"><span class="modulo-icono">◌</span><small>TURBINA</small><b id="plantaTurbina">×0</b></div>
+          <div class="modulo-fisico inter"><span class="modulo-icono">≋</span><small>INTERCAMBIADOR</small><b id="plantaInter">×0</b></div>
+          <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
         </div>
+        <div class="planta-circuito">
+          <div class="linea-retorno"><span>RETORNO GEOTÉRMICO</span><i></i><i></i><i></i></div>
+          <div class="linea-suministro"><span>SUMINISTRO AL CABEZAL</span><i></i><i></i><i></i></div>
+        </div>
+        <div class="planta-pozo">
+          <div class="pared-geologica"><span>CAPA ACTUAL</span><b id="prof">0 m</b><em></em></div>
+          <div class="conducto"><div class="conducto-retorno"></div><div class="conducto-suministro"></div></div>
+          <div id="nucleo" aria-label="Extraer energía manualmente">
+            <div id="halo"></div>
+            <svg id="anillo" viewBox="0 0 200 200" aria-hidden="true">
+              <defs><linearGradient id="arcoRadar" x1="0" x2="1"><stop stop-color="#4FC3D9"/><stop offset="1" stop-color="#F0A22E"/></linearGradient></defs>
+              <path id="radarBarrido" d="M100 100 L100 18 A82 82 0 0 1 165 50 Z"/>
+              <circle class="radar-radial r1" cx="100" cy="100" r="78"/><circle class="radar-radial r2" cx="100" cy="100" r="58"/>
+              <circle class="pista" cx="100" cy="100" r="88"/><circle class="carga" cx="100" cy="100" r="88" transform="rotate(-90 100 100)" stroke-dasharray="553" stroke-dashoffset="553"/>
+              <circle class="centro-radar" cx="100" cy="100" r="5"/>
+            </svg>
+            <div id="lectura"><span class="lectura-etiqueta">CABEZA DE PERFORACIÓN</span><div id="restante">TOCAR · SONDEO ACTIVO</div></div>
+            <span class="radar-accion">IMPULSO MANUAL</span>
+          </div>
+          <div class="modulo-cabezal"><span>SONDA TÉRMICA</span><b id="plantaSonda">×0</b><small>CAPTACIÓN</small></div>
+        </div>
+        <div class="planta-leyenda"><span><i class="ambar"></i> CARGA RECUPERADA</span><span><i class="cian"></i> TRABAJO DE POZO</span><b id="plantaObjetivo">PRÓXIMA FIRMA · FE-57</b></div>
+      </section>
 
+      <div class="sondeo-instrumentos">
         <aside id="instrumentos" aria-label="Lecturas de instrumentación">
           <div class="instrumento"><span>TEMPERATURA</span><strong id="instTemperatura">16 °C</strong><small>MODELO TÉRMICO</small></div>
           <div class="instrumento"><span>PRESIÓN</span><strong id="instPresion">0,1 MPa</strong><small>ESTIMADA</small></div>
@@ -70,7 +73,7 @@
       <section id="perfilGeologico" aria-label="Perfil geológico">
         <div class="perfil-cab">
           <span>ESTRATOS</span>
-          <strong id="estrato">CORTEZA CONTINENTAL</strong>
+          <strong id="estratoPerfil">CORTEZA CONTINENTAL</strong>
         </div>
         <div class="columna-estratos">
           <div class="capa-geologica corteza"><span>CORTEZA</span></div>
