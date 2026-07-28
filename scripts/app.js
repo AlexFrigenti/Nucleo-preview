@@ -986,22 +986,24 @@ function dibujar(jps){
   // La velocidad usa una escala logarítmica: responde a la producción sin parecer
   // una cinta transportadora cuando el jugador alcanza tasas altas.
   const pared = $('paredEstrato');
+  const polvoMineral = $('polvoMineral');
   const perforando = jps > 0;
   pared.classList.toggle('perforacion-activa', perforando);
+  polvoMineral.classList.toggle('perforacion-activa', perforando);
   if(perforando){
     const intensidad = Math.min(1, Math.log10(jps + 1) / 6);
-    const descenso = (28 - intensidad * 10).toFixed(1) + 's';
-    const polvo = (10 - intensidad * 3.5).toFixed(1) + 's';
+    const descenso = (28 - intensidad * 14).toFixed(1) + 's';
+    const polvo = (7.5 - intensidad * 3).toFixed(1) + 's';
     const clave = descenso + '|' + polvo;
     if(clave !== duracionPerforacionActual){
       duracionPerforacionActual = clave;
       pared.style.setProperty('--descenso-duracion', descenso);
-      pared.style.setProperty('--polvo-duracion', polvo);
+      polvoMineral.style.setProperty('--polvo-duracion', polvo);
     }
   }else if(duracionPerforacionActual !== null){
     duracionPerforacionActual = null;
     pared.style.removeProperty('--descenso-duracion');
-    pared.style.removeProperty('--polvo-duracion');
+    polvoMineral.style.removeProperty('--polvo-duracion');
   }
   if($('estrato').textContent !== nombreEstrato){
     $('estrato').textContent = nombreEstrato;
@@ -1232,7 +1234,7 @@ $('version').textContent = 'v' + VERSION;
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=56', { updateViaCache: 'none' }).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=57', { updateViaCache: 'none' }).catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
     if(e.data === 'actualizado') location.reload();
