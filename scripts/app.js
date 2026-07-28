@@ -981,6 +981,8 @@ function dibujar(jps){
   $('prof').textContent = fmtProfundidad(profM);
   const nombreEstrato = estratoDe(profM);
   actualizarParedEstrato(nombreEstrato);
+  // La pared solo se desplaza con extracción real; la perforadora permanece fija.
+  $('paredEstrato').classList.toggle('perforacion-activa', jps > 0);
   if($('estrato').textContent !== nombreEstrato){
     $('estrato').textContent = nombreEstrato;
     $('estratoPerfil').textContent = nombreEstrato;
@@ -1203,14 +1205,14 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 53;
+const VERSION = 55;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
 // ha refrescado la copia, recargamos para mostrar lo nuevo.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('./sw.js?v=52').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=55', { updateViaCache: 'none' }).catch(()=>{});
   });
   navigator.serviceWorker.addEventListener('message', e=>{
     if(e.data === 'actualizado') location.reload();
