@@ -5,12 +5,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Núcleo">
 <meta name="theme-color" content="#0E1218">
-<link rel="manifest" href="./manifest.webmanifest?v=43">
+<link rel="manifest" href="./manifest.webmanifest?v=44">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <title>Núcleo</title>
 
-<link rel="stylesheet" href="./styles/app.css?v=43">
+<link rel="stylesheet" href="./styles/app.css?v=44">
 
 <div id="actualiza"></div>
 <div id="offline"></div>
@@ -48,6 +48,9 @@
             <div class="acumulador"><span>CARGA OPERATIVA</span><strong id="julios">0</strong><b id="tasa">0 J/s</b></div>
             <div class="puerto-proceso puerto-suministro"><i></i><span>SUMINISTRO<br>AL CABEZAL</span></div>
           </div>
+          <div id="moduloBucle" class="modulo-escena modulo-bucle" aria-label="Bucle de vapor instalado">
+            <i class="deposito-vapor"></i><i class="valvula-vapor"></i><i class="tubo-vapor"></i><span>BUCLE DE VAPOR</span><b id="plantaBucle">×0</b>
+          </div>
         </div>
         <div class="planta-pozo">
           <div class="estratos-corte" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -58,6 +61,11 @@
             <div class="conducto-suministro"><i></i><i></i><i></i></div>
           </div>
           <div class="etiqueta-flujo retorno">↑ RETORNO</div><div class="etiqueta-flujo suministro">↓ SUMINISTRO</div>
+          <div id="moduloPozo" class="modulo-escena modulo-pozo" aria-label="Perforadora profunda instalada"><i></i><i></i><span>PERFORADORA</span><b id="plantaPozo">×0</b></div>
+          <div id="moduloDiamante" class="modulo-escena modulo-diamante" aria-label="Taladro de diamante instalado"><i></i><i></i><i></i><span>DIAMANTE</span><b id="plantaDiamante">×0</b></div>
+          <div id="moduloSonico" class="modulo-escena modulo-sonico" aria-label="Perforadora sónica instalada"><i class="emisor izq"></i><i class="onda izq"></i><i class="emisor der"></i><i class="onda der"></i><span>SÓNICO</span><b id="plantaSonico">×0</b></div>
+          <div id="moduloParticulas" class="modulo-escena modulo-particulas" aria-label="Cañón de partículas instalado"><i></i><i></i><span>PARTÍCULAS</span><b id="plantaParticulas">×0</b></div>
+          <div id="moduloPlasma" class="modulo-escena modulo-plasma" aria-label="Forja de plasma instalada"><i></i><i></i><span>FORJA DE PLASMA</span><b id="plantaPlasma">×0</b></div>
           <div id="nucleo" aria-label="Extraer energía manualmente">
             <div id="halo"></div>
             <svg id="anillo" viewBox="0 0 200 200" aria-hidden="true">
@@ -298,5 +306,5 @@
 
 <div id="hitoToast"></div>
 
-<script src="./registro.js?v=40"></script>
-<script src="./scripts/app.js?v=40"></script>
+<script src="./registro.js?v=44"></script>
+<script src="./scripts/app.js?v=44"></script>
