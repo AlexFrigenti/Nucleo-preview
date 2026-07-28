@@ -10,8 +10,8 @@
 
    Sube el número de CACHE (v2 -> v3 ...) si cambias esta lógica. */
 
-const CACHE = 'nucleo-v25';
-const ARCHIVOS = ['./', './index.html', './styles/app.css?v=48', './scripts/app.js?v=48', './registro.js?v=48', './manifest.webmanifest?v=48', './version.json'];
+const CACHE = 'nucleo-v26';
+const ARCHIVOS = ['./', './index.html', './styles/app.css?v=49', './scripts/app.js?v=49', './registro.js?v=49', './manifest.webmanifest?v=49', './version.json'];
 
 // 1) Instalación: guarda la copia inicial.
 self.addEventListener('install', e => {
