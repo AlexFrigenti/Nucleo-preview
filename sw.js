@@ -4,13 +4,14 @@
    Estrategia:
    - La PÁGINA (navegación) se pide siempre fresca a internet si hay
      conexión (así ves los cambios al instante); si no hay, se usa la copia.
-   - El resto de archivos: internet primero, con la copia de respaldo.
+   - El resto de archivos: internet primero, revalidando contra red antes de
+     usar la copia local. Así la preview no queda atrapada en un asset viejo.
    - Mensaje 'actualizar': vuelve a bajar todo salteando la caché del
      navegador y avisa a la app para que recargue con lo nuevo.
 
-   Sube el número de CACHE (v2 -> v3 ...) si cambias esta lógica. */
+   Sube el número de CACHE si cambias esta lógica. */
 
-const CACHE = 'nucleo-v30';
+const CACHE = 'nucleo-v31';
 const ARCHIVOS = ['./', './index.html', './styles/app.css?v=53', './scripts/app.js?v=53', './registro.js?v=53', './manifest.webmanifest?v=53', './version.json'];
 
 // 1) Instalación: guarda la copia inicial.
@@ -30,11 +31,13 @@ self.addEventListener('activate', e => {
   );
 });
 
-// 3) Peticiones: la página siempre fresca (si hay red); lo demás, red con respaldo.
+// 3) Peticiones: página sin caché; assets revalidados contra red.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const esPagina = e.request.mode === 'navigate';
-  const peticion = esPagina ? new Request(e.request.url, { cache: 'no-store' }) : e.request;
+  const peticion = new Request(e.request.url, {
+    cache: esPagina ? 'no-store' : 'no-cache'
+  });
   e.respondWith(
     fetch(peticion)
       .then(resp => {
