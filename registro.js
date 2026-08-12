@@ -219,7 +219,7 @@ Desde 55 kilómetros, se ve el fondo.` }
     '@media (prefers-reduced-motion:reduce){',
     '  #paredEstrato.profundidad-viva{animation:none!important}',
     '}'
-  ].join('\\n');
+  ].join('\n');
   document.head.appendChild(style);
 
   let estadoAnterior = null;
