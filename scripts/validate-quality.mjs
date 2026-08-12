@@ -14,7 +14,7 @@ for (const file of requiredFiles) {
   await access(file);
 }
 
-const html = await readFile("index.html", "utf8");
+const app = await readFile("scripts/app.js", "utf8");
 const versionData = JSON.parse(await readFile("version.json", "utf8"));
 const manifest = JSON.parse(await readFile("manifest.webmanifest", "utf8"));
 
@@ -22,14 +22,14 @@ if (!Number.isInteger(versionData.v) || versionData.v < 1) {
   throw new Error("version.json must contain a positive integer in v");
 }
 
-const versionMatch = html.match(/\bconst\s+VERSION\s*=\s*(\d+)\s*;/);
+const versionMatch = app.match(/\bconst\s+VERSION\s*=\s*(\d+)\s*;/);
 if (!versionMatch) {
-  throw new Error("index.html must declare const VERSION");
+  throw new Error("scripts/app.js must declare const VERSION");
 }
 
 if (Number(versionMatch[1]) !== versionData.v) {
   throw new Error(
-    `Version mismatch: index.html=${versionMatch[1]}, version.json=${versionData.v}`,
+    `Version mismatch: scripts/app.js=${versionMatch[1]}, version.json=${versionData.v}`,
   );
 }
 
