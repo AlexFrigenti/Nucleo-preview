@@ -184,3 +184,49 @@ Lo he comprobado desde arriba. Se ve el fondo.
 Desde 55 kilómetros, se ve el fondo.` }
 
 ];
+
+/* ============================================================
+   PREVIEW · PROFUNDIDAD VIVA
+   ------------------------------------------------------------
+   Prueba aislada: cuando existe producción automática, la pared
+   de corteza asciende en un bucle de una baldosa completa. La
+   maquinaria permanece fija y por eso el ojo interpreta descenso.
+   No añade polvo, partículas ni efectos secundarios.
+   ============================================================ */
+(function activarProfundidadViva(){
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes nucleo-descenso-geologico{
+      from{background-position:center 0}
+      to{background-position:center -760px}
+    }
+    #paredEstrato.estrato-corteza.perforacion-activa,
+    #paredEstrato.estrato-corteza-continental.perforacion-activa{
+      animation:nucleo-descenso-geologico 26s linear infinite;
+      will-change:background-position;
+    }
+    .aplicacion-pausada #paredEstrato.perforacion-activa{
+      animation-play-state:paused;
+    }
+    @media (prefers-reduced-motion:reduce){
+      #paredEstrato.perforacion-activa{animation:none!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  let estadoAnterior = null;
+  function sincronizar(){
+    const pared = document.getElementById('paredEstrato');
+    if(!pared || typeof porSegundo !== 'function'){
+      requestAnimationFrame(sincronizar);
+      return;
+    }
+    const activa = !document.hidden && porSegundo() > 0;
+    if(activa !== estadoAnterior){
+      estadoAnterior = activa;
+      pared.classList.toggle('perforacion-activa', activa);
+    }
+    requestAnimationFrame(sincronizar);
+  }
+  requestAnimationFrame(sincronizar);
+})();
