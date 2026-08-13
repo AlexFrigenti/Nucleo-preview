@@ -1,0 +1,26 @@
+name: Quality checks
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  reusable-quality:
+    name: Reusable static quality
+    uses: AlexFrigenti/project-quality/.github/workflows/static-quality.yml@e763e13404e52e9e9c2e87d51efaa3c3492dd27c
+    with:
+      standard-version: v1.1.0
+      standard-sha: e763e13404e52e9e9c2e87d51efaa3c3492dd27c
+      node-version: "22.13.0"
+      validation-command: |
+        node --check scripts/app.js
+        node --check registro.js
+        node --check sw.js
+        node scripts/validate-quality.mjs
