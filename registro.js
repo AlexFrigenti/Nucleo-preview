@@ -195,38 +195,55 @@ Desde 55 kilómetros, se ve el fondo.` }
    ============================================================ */
 (function activarProfundidadViva(){
   const style = document.createElement('style');
-  style.textContent = `
-    @keyframes nucleo-descenso-geologico{
-      from{background-position:center 0}
-      to{background-position:center -760px}
-    }
-    #paredEstrato.estrato-corteza.perforacion-activa,
-    #paredEstrato.estrato-corteza-continental.perforacion-activa{
-      animation:nucleo-descenso-geologico 26s linear infinite;
-      will-change:background-position;
-    }
-    .aplicacion-pausada #paredEstrato.perforacion-activa{
-      animation-play-state:paused;
-    }
-    @media (prefers-reduced-motion:reduce){
-      #paredEstrato.perforacion-activa{animation:none!important}
-    }
-  `;
+  style.textContent = [
+    '@keyframes nucleo-descenso-geologico{',
+    '  from{background-position:center top}',
+    '  to{background-position:center -760px}',
+    '}',
+    '#paredEstrato.estrato-corteza.profundidad-viva,',
+    '#paredEstrato.estrato-corteza-continental.profundidad-viva{',
+    '  animation-name:nucleo-descenso-geologico;',
+    '  animation-duration:26s;',
+    '  animation-timing-function:linear;',
+    '  animation-iteration-count:infinite;',
+    '  animation-play-state:paused;',
+    '  will-change:background-position;',
+    '}',
+    '#paredEstrato.estrato-corteza.profundidad-viva.perforacion-activa,',
+    '#paredEstrato.estrato-corteza-continental.profundidad-viva.perforacion-activa{',
+    '  animation-play-state:running;',
+    '}',
+    '.aplicacion-pausada #paredEstrato.profundidad-viva{',
+    '  animation-play-state:paused;',
+    '}',
+    '@media (prefers-reduced-motion:reduce){',
+    '  #paredEstrato.profundidad-viva{animation:none!important}',
+    '}'
+  ].join('\n');
   document.head.appendChild(style);
 
   let estadoAnterior = null;
+  let cortezaAnterior = null;
   function sincronizar(){
     const pared = document.getElementById('paredEstrato');
-    if(!pared || typeof porSegundo !== 'function'){
-      requestAnimationFrame(sincronizar);
-      return;
+    if(!pared || typeof porSegundo !== 'function') return;
+
+    const esCorteza = pared.classList.contains('estrato-corteza') ||
+      pared.classList.contains('estrato-corteza-continental');
+    const activa = esCorteza && !document.hidden && porSegundo() > 0;
+
+    if(esCorteza !== cortezaAnterior){
+      cortezaAnterior = esCorteza;
+      pared.classList.toggle('profundidad-viva', esCorteza);
     }
-    const activa = !document.hidden && porSegundo() > 0;
     if(activa !== estadoAnterior){
       estadoAnterior = activa;
       pared.classList.toggle('perforacion-activa', activa);
     }
-    requestAnimationFrame(sincronizar);
   }
-  requestAnimationFrame(sincronizar);
+
+  // La animación la hace el compositor; solo comprobamos el estado 4 veces/s.
+  sincronizar();
+  setInterval(sincronizar, 250);
+  document.addEventListener('visibilitychange', sincronizar);
 })();

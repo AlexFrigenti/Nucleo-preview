@@ -579,7 +579,7 @@ section{margin-bottom:26px}
 .estrato-corteza,.estrato-corteza-continental{
   /* Textura real repetible; solo se aplica a la pared del estrato activo. */
   background-color:#121d20;
-  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=53');
+  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=54');
   background-repeat:repeat;
   background-position:center top;
   background-size:760px 760px;
