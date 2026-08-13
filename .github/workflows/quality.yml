@@ -14,8 +14,10 @@ permissions:
 jobs:
   reusable-quality:
     name: Reusable static quality
-    uses: AlexFrigenti/project-quality/.github/workflows/static-quality.yml@28f01d394b9b212a302a49d010cd5e928052e8e8
+    uses: AlexFrigenti/project-quality/.github/workflows/static-quality.yml@e763e13404e52e9e9c2e87d51efaa3c3492dd27c
     with:
+      standard-version: v1.1.0
+      standard-sha: e763e13404e52e9e9c2e87d51efaa3c3492dd27c
       node-version: "22.13.0"
       validation-command: |
         node --check scripts/app.js
