@@ -186,11 +186,11 @@ Desde 55 kilómetros, se ve el fondo.` }
 ];
 
 /* ============================================================
-   PREVIEW · PROFUNDIDAD VIVA
+   PREVIEW · PROFUNDIDAD VIVA · ESTRATOS ACTIVOS
    ------------------------------------------------------------
    Prueba aislada: cuando existe producción automática, la pared
-   de corteza asciende en un bucle de una baldosa completa. La
-   maquinaria permanece fija y por eso el ojo interpreta descenso.
+   geológica se desplaza en un bucle suave. La maquinaria permanece
+   fija y por eso el ojo interpreta descenso.
    No añade polvo, partículas ni efectos secundarios.
    ============================================================ */
 (function activarProfundidadViva(){
@@ -209,32 +209,48 @@ Desde 55 kilómetros, se ve el fondo.` }
     '  animation-play-state:paused;',
     '  will-change:background-position;',
     '}',
+    '#paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{',
+    '  animation-name:nucleo-descenso-geologico;',
+    '  animation-duration:26s;',
+    '  animation-timing-function:linear;',
+    '  animation-iteration-count:infinite;',
+    '  animation-play-state:paused;',
+    '  will-change:background-position;',
+    '}',
     '#paredEstrato.estrato-corteza.profundidad-viva.perforacion-activa,',
-    '#paredEstrato.estrato-corteza-continental.profundidad-viva.perforacion-activa{',
+    '#paredEstrato.estrato-corteza-continental.profundidad-viva.perforacion-activa,',
+    '#paredEstrato.profundidad-viva.perforacion-activa:not(.estrato-corteza):not(.estrato-corteza-continental)::before{',
     '  animation-play-state:running;',
     '}',
-    '.aplicacion-pausada #paredEstrato.profundidad-viva{',
+    '.aplicacion-pausada #paredEstrato.profundidad-viva,',
+    '.aplicacion-pausada #paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{',
     '  animation-play-state:paused;',
     '}',
     '@media (prefers-reduced-motion:reduce){',
-    '  #paredEstrato.profundidad-viva{animation:none!important}',
+    '  #paredEstrato.profundidad-viva,',
+    '  #paredEstrato.profundidad-viva::before{animation:none!important}',
     '}'
   ].join('\n');
   document.head.appendChild(style);
 
   let estadoAnterior = null;
-  let cortezaAnterior = null;
+  let estratoAnterior = null;
+  function estratoActivo(pared){
+    return [...pared.classList].find(clase =>
+      clase.startsWith('estrato-') && clase !== 'estrato-transicion'
+    ) || null;
+  }
   function sincronizar(){
     const pared = document.getElementById('paredEstrato');
     if(!pared || typeof porSegundo !== 'function') return;
 
-    const esCorteza = pared.classList.contains('estrato-corteza') ||
-      pared.classList.contains('estrato-corteza-continental');
-    const activa = esCorteza && !document.hidden && porSegundo() > 0;
+    const claseActiva = estratoActivo(pared);
+    const hayEstrato = Boolean(claseActiva);
+    const activa = hayEstrato && !document.hidden && porSegundo() > 0;
 
-    if(esCorteza !== cortezaAnterior){
-      cortezaAnterior = esCorteza;
-      pared.classList.toggle('profundidad-viva', esCorteza);
+    if(claseActiva !== estratoAnterior){
+      estratoAnterior = claseActiva;
+      pared.classList.toggle('profundidad-viva', hayEstrato);
     }
     if(activa !== estadoAnterior){
       estadoAnterior = activa;
