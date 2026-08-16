@@ -19,6 +19,17 @@ Para T1/T2 usa specs/NNN-feature-name/ y las plantillas comunes de project-quali
 
 Mantén Nucleo-preview separado de Nucleo. Conserva la preview estable y la textura de corteza continental aprobada; no reincorpores experimentos visuales que no formen parte del alcance aprobado.
 
+## Ejecución agentic proporcional
+
+Mantén el proceso proporcional al riesgo y complejidad del cambio.
+
+Por defecto, utiliza una implementación coherente, una revisión independiente del diff completo, una ronda agrupada de correcciones y una verificación final.
+
+- No asignes automáticamente un subagente independiente a cada microtarea ni encadenes rondas completas de implementación, revisión y corrección sin necesidad técnica.
+- Si después de la primera ronda de correcciones fuera necesaria otra revisión integral o una nueva ronda sustancial de trabajo, detente, resume el estado y solicita autorización antes de continuar.
+- Los revisores deben priorizar el diff, los requisitos y el contexto necesario, evitando releer repetidamente archivos o áreas no afectadas salvo que sea necesario.
+- Reutiliza evidencia de validación que siga siendo válida y no repitas análisis o pruebas costosas sin una razón técnica.
+
 ## Validación
 
 Ejecuta los controles reales disponibles en el repositorio y revisa el diff completo. En el estado actual no hay package.json ni validador automatizado propio:
