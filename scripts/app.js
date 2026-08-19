@@ -101,7 +101,10 @@ function nuevaPartida(){
            // `investigacion` ya está convertida en una mejora permanente.
            muestras:{}, investigacion:{}, resonancias:{}, matricesDelta:0, descubiertos:[], anomaliasCiclo:[],
            anomalia:null, isotopoActivo:null, tutorialIsotopoVisto:false,
-           objetivosEstrato:[] };
+           objetivosEstrato:[],
+           resonanciaMineral: (typeof ResonanciaMineral !== 'undefined') ? ResonanciaMineral.crearEstadoResonancia(1, false) : null,
+           resonanciasMineralesRecuperadas: 0,
+           anticipacionResonante: false };
 }
 
 /* ============ CÁLCULOS ============ */
@@ -128,8 +131,9 @@ function gananciaRecalibrado(gana){
 }
 function bonusGlobal(){
   const bonusHitos = 1 + 0.02 * (s.logros ? s.logros.length : 0);
+  const bonusExtraccion = (typeof ResonanciaMineral !== 'undefined' && ResonanciaMineral.esExtraccionActiva(s.resonanciaMineral)) ? 1.50 : 1.0;
   // red de seguridad: nunca devolver Infinity/NaN (rompería la partida)
-  return Math.min(multiplicadorDe('global') * bonusIsotopos(s.isotopos) * bonusHitos * (1 + .01 * investigacionDe('ni62')) * (1 + .02 * resonanciaDe('ni62')) * (1 + .02 * matricesDelta()) * bonusObjetivoEstrato('global'), 1e300);
+  return Math.min(multiplicadorDe('global') * bonusIsotopos(s.isotopos) * bonusHitos * (1 + .01 * investigacionDe('ni62')) * (1 + .02 * resonanciaDe('ni62')) * (1 + .02 * matricesDelta()) * bonusObjetivoEstrato('global') * bonusExtraccion, 1e300);
 }
 function produccionDe(m){
   return s.mod[m.id] * m.prod * multiplicadorDe(m.id) * bonusGlobal() * (s.isotopoActivo === 'he3' ? 1.25 : 1);
@@ -583,9 +587,14 @@ function hacerRecalibrado(gana){
     logros: s.logros,                                         // los hitos tampoco
     investigacion, resonancias, matricesDelta: matrices, descubiertos: s.descubiertos,
     tutorialIsotopoVisto: s.tutorialIsotopoVisto,
-    historialPozos:historialPozos.slice(0, 24), bitacora:bitacora.slice(0, 36)
+    historialPozos:historialPozos.slice(0, 24), bitacora:bitacora.slice(0, 36),
+    resonanciasMineralesRecuperadas: s.resonanciasMineralesRecuperadas || 0,
+    anticipacionResonante: Boolean(s.anticipacionResonante || (s.resonanciasMineralesRecuperadas > 0))
   };
+  const nuevoNumeroPozo = vida.recalibraciones + 1;
+  const nuevoEstadoRes = (typeof ResonanciaMineral !== 'undefined') ? ResonanciaMineral.crearEstadoResonancia(nuevoNumeroPozo, vida.anticipacionResonante) : null;
   s = nuevaPartida(); s.isotopos = iso; Object.assign(s, vida);
+  s.resonanciaMineral = nuevoEstadoRes;
   pintarMejoras(); guardar();
 }
 
@@ -853,6 +862,16 @@ $('btnCargar').onclick = ()=>{
   if(!Array.isArray(s.historialPozos)) s.historialPozos = [];
   if(!Array.isArray(s.bitacora)) s.bitacora = [];
   if(typeof s.mejorTasaCiclo !== 'number') s.mejorTasaCiclo = 0;
+  if(typeof s.resonanciasMineralesRecuperadas !== 'number') s.resonanciasMineralesRecuperadas = 0;
+  if(typeof s.anticipacionResonante !== 'boolean') s.anticipacionResonante = Boolean(s.resonanciasMineralesRecuperadas > 0);
+  if(typeof ResonanciaMineral !== 'undefined'){
+    s.resonanciaMineral = ResonanciaMineral.migrarEstadoResonancia(
+      s.resonanciaMineral,
+      (s.recalibraciones || 0) + 1,
+      profundidad(),
+      s.anticipacionResonante
+    );
+  }
   guardar();
   crearFichas(); pintarMejoras();
   $('datosArea').style.display = 'none';
@@ -879,9 +898,38 @@ function actualizarInstrumentos(profM, jps){
   // Lecturas decorativas, pero coherentes con la profundidad: no modifican mecánicas.
   const km = profM / 1000;
   const temperatura = Math.max(14, 16 + km * 24 - Math.sin(km * .8) * Math.min(18, km * 2));
-  const presion = Math.max(.1, profM * .027);
-  const densidad = Math.min(12.8, 2.70 + Math.log10(profM + 1) * .49);
-  const periodo = profM < 3000 ? 'EN MUESTREO' : (Math.max(.4, 41 - Math.log10(profM / 3000 + 1) * 12)).toFixed(profM > 120000 ? 1 : 0).replace('.', ',') + ' s';
+  let presion = Math.max(.1, profM * .027);
+  let densidad = Math.min(12.8, 2.70 + Math.log10(profM + 1) * .49);
+  let periodo = profM < 3000 ? 'EN MUESTREO' : (Math.max(.4, 41 - Math.log10(profM / 3000 + 1) * 12)).toFixed(profM > 120000 ? 1 : 0).replace('.', ',') + ' s';
+
+  if(typeof ResonanciaMineral !== 'undefined' && s.resonanciaMineral){
+    const estadoAnt = s.resonanciaMineral.estado;
+    s.resonanciaMineral = ResonanciaMineral.evaluarEstadoResonancia(
+      s.resonanciaMineral,
+      profM,
+      s.anticipacionResonante
+    );
+    const estadoRes = s.resonanciaMineral;
+    if(ResonanciaMineral.debeNotificarDeteccion(estadoAnt, estadoRes.estado)){
+      notificarDeteccionResonancia();
+    }
+    if(estadoRes.estado === 'ANTICIPATING'){
+      const prog = ResonanciaMineral.calcularProgresoAnticipacion(
+        profM,
+        estadoRes.puntoM,
+        s.anticipacionResonante
+      );
+      presion *= (1 + prog * 0.08);
+      densidad += prog * 0.15;
+    }
+    periodo = ResonanciaMineral.calcularPeriodoMostrado(
+      profM,
+      estadoRes,
+      s.anticipacionResonante,
+      periodo
+    );
+  }
+
   $('instTemperatura').textContent = Math.round(temperatura).toString() + ' °C';
   $('instPresion').textContent = presion < 10 ? presion.toFixed(1).replace('.', ',') + ' MPa' : Math.round(presion).toString() + ' MPa';
   $('instDensidad').textContent = densidad.toFixed(2).replace('.', ',') + ' g/cm³';
@@ -948,7 +996,7 @@ function bucle(ahora){
   acumTic += dt;
   if(acumTic >= 1){
     acumTic = 0; historial.push(jps); historial.shift();
-    if(pestanaActiva === 'sondeo') pintarGrafica();
+    if(pestanaActiva === 'sondeo') pintarGrafica(); vincularBotonesResonancia(); actualizarResonanciaUI();
     if(pestanaActiva === 'sistema') renderSistema();
     comprobarRegistro();
     comprobarLogros();
@@ -1013,8 +1061,13 @@ function dibujar(jps){
   actualizarMuestra(profM);
   const boton = $('recal');
   boton.style.display = (gana >= 1) ? 'block' : 'none';
-  if(gana >= 1) boton.innerHTML =
-    `<span class="protocolo-codigo">PROTOCOLO Δ-${String((s.recalibraciones||0)+1).padStart(2,'0')}</span><strong>RECALIBRAR INSTRUMENTACIÓN</strong><small>Recuperar ${gana} isótopo${gana>1?'s':''} · ${totalMuestrasPendientes() ? 'integrar ' + totalMuestrasPendientes() + ' muestra' + (totalMuestrasPendientes()>1?'s':'') + ' · ' : ''}reinicia el ciclo · ×${fmt(gananciaRecalibrado(gana))} permanente</small>`;
+  if(gana >= 1){
+    const nuevoHtml = `<span class="protocolo-codigo">PROTOCOLO Δ-${String((s.recalibraciones||0)+1).padStart(2,'0')}</span><strong>RECALIBRAR INSTRUMENTACIÓN</strong><small>Recuperar ${gana} isótopo${gana>1?'s':''} · ${totalMuestrasPendientes() ? 'integrar ' + totalMuestrasPendientes() + ' muestra' + (totalMuestrasPendientes()>1?'s':'') + ' · ' : ''}reinicia el ciclo · ×${fmt(gananciaRecalibrado(gana))} permanente</small>`;
+    if(boton.dataset.contenido !== nuevoHtml){
+      boton.innerHTML = nuevoHtml;
+      boton.dataset.contenido = nuevoHtml;
+    }
+  }
 
   const multIso = bonusIsotopos(s.isotopos);
   const laboratorio = totalMuestrasPendientes() ? ' · '+totalMuestrasPendientes()+' muestra'+(totalMuestrasPendientes()>1?'s':'')+' en custodia' : '';
@@ -1078,6 +1131,169 @@ function dibujarEquipo(jps){
   });
 }
 
+
+/* ============ ACCIONES DE RESONANCIA MINERAL ============ */
+function ejecutarAccionResonancia(accion, now){
+  if(typeof ResonanciaMineral === 'undefined' || !s.resonanciaMineral) return;
+  const res = ResonanciaMineral.resolverAccionResonancia(s.resonanciaMineral, accion, {
+    now: now || Date.now(),
+    resonanciasMineralesRecuperadas: s.resonanciasMineralesRecuperadas || 0
+  });
+  s.resonanciaMineral = res.estadoResonancia;
+  if(typeof res.resonanciasMineralesRecuperadas === 'number'){
+    s.resonanciasMineralesRecuperadas = res.resonanciasMineralesRecuperadas;
+  }
+  if(typeof res.anticipacionResonante === 'boolean'){
+    s.anticipacionResonante = res.anticipacionResonante;
+  }
+  guardar();
+}
+
+function ignorarResonanciaMineral(){ ejecutarAccionResonancia('IGNORAR'); }
+function sintonizarResonanciaMineral(){ ejecutarAccionResonancia('SINTONIZAR'); }
+function extraerResonanciaMineral(now){ ejecutarAccionResonancia('EXTRACCION', now); }
+function muestrearResonanciaMineral(){ ejecutarAccionResonancia('MUESTREO'); }
+
+let feedbackResonanciaTimer = null;
+let feedbackResonanciaTexto = '';
+
+function mostrarFeedbackResonancia(txt){
+  feedbackResonanciaTexto = txt;
+  if(feedbackResonanciaTimer) clearTimeout(feedbackResonanciaTimer);
+  feedbackResonanciaTimer = setTimeout(()=>{
+    feedbackResonanciaTexto = '';
+    actualizarResonanciaUI();
+  }, 4000);
+  actualizarResonanciaUI();
+}
+
+function notificarDeteccionResonancia(){
+  const panel = $('panelResonancia');
+  if(!panel) return;
+  panel.classList.remove('pulso-deteccion');
+  void panel.offsetWidth; // Reflow para reiniciar animacion
+  panel.classList.add('pulso-deteccion');
+  setTimeout(()=>{ panel.classList.remove('pulso-deteccion'); }, 1500);
+
+  // Scroll suave condicional solo si no esta suficientemente visible
+  try {
+    const rect = panel.getBoundingClientRect();
+    const navMargin = 64; // Margen de seguridad para la barra inferior fija
+    const visible = rect.top >= 10 && (rect.bottom <= (window.innerHeight - navMargin));
+    if(!visible && typeof panel.scrollIntoView === 'function'){
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  } catch(e){}
+}
+
+function actualizarResonanciaUI(){
+  const panel = $('panelResonancia');
+  if(!panel) return;
+  if(typeof ResonanciaMineral === 'undefined' || !s.resonanciaMineral){
+    panel.style.display = 'none';
+    return;
+  }
+
+  const vista = ResonanciaMineral.obtenerVistaResonancia(s.resonanciaMineral, Date.now());
+
+  if(!vista.visible && !feedbackResonanciaTexto){
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = 'block';
+  panel.className = 'panel-resonancia';
+
+  const tag = $('resTag');
+  const periodoBadge = $('resPeriodoBadge');
+  const titulo = $('resTitulo');
+  const detalle = $('resDetalle');
+  const btnIgnorar = $('btnResIgnorar');
+  const btnSintonizar = $('btnResSintonizar');
+  const btnExtraccion = $('btnResExtraccion');
+  const btnMuestreo = $('btnResMuestreo');
+  const feedback = $('resFeedback');
+
+  if(feedbackResonanciaTexto){
+    feedback.style.display = 'block';
+    feedback.textContent = feedbackResonanciaTexto;
+  } else {
+    feedback.style.display = 'none';
+    feedback.textContent = '';
+  }
+
+  if(vista.vista === 'DETECTED'){
+    tag.textContent = 'RESONANCIA MINERAL';
+    periodoBadge.style.display = 'inline-block';
+    periodoBadge.textContent = 'PERIODO · ' + vista.periodoTexto;
+    titulo.textContent = 'PATRÓN PERIÓDICO DETECTADO';
+    detalle.textContent = 'Patrón periódico estable detectado en la formación.';
+    btnIgnorar.style.display = 'inline-block';
+    btnSintonizar.style.display = 'inline-block';
+    btnExtraccion.style.display = 'none';
+    btnMuestreo.style.display = 'none';
+  } else if(vista.vista === 'TUNING'){
+    panel.classList.add('modo-tuning');
+    tag.textContent = 'DESTINO DE RESONANCIA';
+    periodoBadge.style.display = 'inline-block';
+    periodoBadge.textContent = 'PERIODO · ' + vista.periodoTexto;
+    titulo.textContent = 'SINTONIZACIÓN ESTABLECIDA';
+    detalle.textContent = 'Selecciona el protocolo de aprovechamiento de la resonancia:';
+    btnIgnorar.style.display = 'none';
+    btnSintonizar.style.display = 'none';
+    btnExtraccion.style.display = 'inline-block';
+    btnExtraccion.textContent = 'EXTRACCIÓN (+50% · 60 s)';
+    btnMuestreo.style.display = 'inline-block';
+    btnMuestreo.textContent = 'MUESTREO (ANTICIPACIÓN)';
+  } else if(vista.vista === 'EXTRACTION_ACTIVA'){
+    panel.classList.add('modo-extraccion');
+    tag.textContent = 'ACOPLAMIENTO RESONANTE';
+    periodoBadge.style.display = 'inline-block';
+    periodoBadge.textContent = 'ACTIVO · ' + vista.tiempoRestante + ' s';
+    titulo.textContent = 'PRODUCCIÓN GLOBAL +50%';
+    detalle.textContent = 'Flujo de energía optimizado por resonancia mineral activa.';
+    btnIgnorar.style.display = 'none';
+    btnSintonizar.style.display = 'none';
+    btnExtraccion.style.display = 'none';
+    btnMuestreo.style.display = 'none';
+  } else {
+    tag.textContent = 'RESONANCIA MINERAL';
+    periodoBadge.style.display = 'none';
+    titulo.textContent = 'EVENTO RESUELTO';
+    detalle.textContent = 'La formación ha estabilizado sus lecturas.';
+    btnIgnorar.style.display = 'none';
+    btnSintonizar.style.display = 'none';
+    btnExtraccion.style.display = 'none';
+    btnMuestreo.style.display = 'none';
+  }
+}
+
+function vincularBotonesResonancia(){
+  const btnIgnorar = $('btnResIgnorar');
+  const btnSintonizar = $('btnResSintonizar');
+  const btnExtraccion = $('btnResExtraccion');
+  const btnMuestreo = $('btnResMuestreo');
+  if(btnIgnorar) btnIgnorar.onclick = () => {
+    ignorarResonanciaMineral();
+    mostrarFeedbackResonancia('Resonancia descartada.');
+  };
+  if(btnSintonizar) btnSintonizar.onclick = () => {
+    sintonizarResonanciaMineral();
+    actualizarResonanciaUI();
+  };
+  if(btnExtraccion) btnExtraccion.onclick = () => {
+    extraerResonanciaMineral();
+    actualizarResonanciaUI();
+  };
+  if(btnMuestreo) btnMuestreo.onclick = () => {
+    const prev = s.resonanciasMineralesRecuperadas || 0;
+    muestrearResonanciaMineral();
+    const act = s.resonanciasMineralesRecuperadas || 0;
+    const msg = act === 1 ? 'MUESTRA RESONANTE RECUPERADA · Anticipación mejorada a 50 km' : ('MUESTRA RESONANTE RECUPERADA · Total: ' + act);
+    mostrarFeedbackResonancia(msg);
+  };
+}
+
 /* ============ GUARDAR Y CARGAR ============ */
 function guardar(){
   s.t = Date.now();
@@ -1123,10 +1339,27 @@ async function cargar(){
       if(!muestraPorId(s.isotopoActivo)) s.isotopoActivo = null;
       if(typeof d.totalVida !== 'number') s.totalVida = s.totalCiclo;
       if(typeof d.toquesVida !== 'number') s.toquesVida = s.toques;
+      if(typeof s.resonanciasMineralesRecuperadas !== 'number') s.resonanciasMineralesRecuperadas = 0;
+      if(typeof s.anticipacionResonante !== 'boolean') s.anticipacionResonante = Boolean(s.resonanciasMineralesRecuperadas > 0);
+      if(typeof ResonanciaMineral !== 'undefined'){
+        s.resonanciaMineral = ResonanciaMineral.migrarEstadoResonancia(
+          s.resonanciaMineral,
+          (s.recalibraciones || 0) + 1,
+          profundidad(),
+          s.anticipacionResonante
+        );
+      }
       // Las metas ya logradas se reconocen sin seis avisos al actualizar.
       comprobarObjetivosEstrato(true);
 
       aplicarAusencia(d.t);
+      if(typeof ResonanciaMineral !== 'undefined' && s.resonanciaMineral){
+        s.resonanciaMineral = ResonanciaMineral.evaluarEstadoResonancia(
+          s.resonanciaMineral,
+          profundidad(),
+          s.anticipacionResonante
+        );
+      }
     }catch(e){ /* partida corrupta: empezamos de cero */ }
   }
   crearFichas(); pintarMejoras();
@@ -1203,7 +1436,7 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 56;
+const VERSION = 57;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que

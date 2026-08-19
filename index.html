@@ -5,12 +5,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Núcleo">
 <meta name="theme-color" content="#0E1218">
-<link rel="manifest" href="./manifest.webmanifest?v=56">
+<link rel="manifest" href="./manifest.webmanifest?v=57">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <title>Núcleo</title>
 
-<link rel="stylesheet" href="./styles/app.css?v=56">
+<link rel="stylesheet" href="./styles/app.css?v=57">
 
 <div id="actualiza"></div>
 <div id="offline"></div>
@@ -118,6 +118,24 @@
           <p id="objetivoDetalle">Anomalía isotópica estable · análisis pendiente</p>
           <div class="objetivo-traza"><span>TRAZA DE PROFUNDIDAD</span><div class="objetivo-barra"><i id="objetivoBarra"></i></div></div>
           <div class="objetivo-recompensa"><span>RESULTADO ESPERADO</span><small id="objetivoRecompensa">DECISIÓN ISOTÓPICA · FE-57</small></div>
+        </div>
+      </section>
+
+      <section id="panelResonancia" class="panel-resonancia" aria-live="polite" style="display: none;">
+        <div class="resonancia-cab">
+          <span class="resonancia-tag" id="resTag">RESONANCIA MINERAL</span>
+          <span class="resonancia-periodo" id="resPeriodoBadge">PERIODO · —</span>
+        </div>
+        <div class="resonancia-cuerpo">
+          <strong id="resTitulo">PATRÓN PERIÓDICO DETECTADO</strong>
+          <p id="resDetalle">Patrón periódico estable detectado en la formación.</p>
+          <div id="resAcciones" class="resonancia-acciones">
+            <button type="button" id="btnResIgnorar" class="btn-res btn-res-secundario">IGNORAR</button>
+            <button type="button" id="btnResSintonizar" class="btn-res btn-res-primario">SINTONIZAR</button>
+            <button type="button" id="btnResExtraccion" class="btn-res btn-res-primario" style="display: none;">EXTRACCIÓN</button>
+            <button type="button" id="btnResMuestreo" class="btn-res btn-res-acento" style="display: none;">MUESTREO</button>
+          </div>
+          <div id="resFeedback" class="resonancia-feedback" style="display: none;"></div>
         </div>
       </section>
 
@@ -306,5 +324,6 @@
 
 <div id="hitoToast"></div>
 
-<script src="./registro.js?v=56"></script>
-<script src="./scripts/app.js?v=56"></script>
+<script src="./registro.js?v=57"></script>
+<script src="./scripts/resonancia.js?v=57"></script>
+<script src="./scripts/app.js?v=57"></script>
