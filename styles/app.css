@@ -585,7 +585,8 @@ section{margin-bottom:26px}
   to{background-position:center -760px}
 }
 #paredEstrato.estrato-corteza.profundidad-viva,
-#paredEstrato.estrato-corteza-continental.profundidad-viva{
+#paredEstrato.estrato-corteza-continental.profundidad-viva,
+#paredEstrato.estrato-manto-superior.profundidad-viva{
   animation-name:nucleo-descenso-geologico;
   animation-duration:26s;
   animation-timing-function:linear;
@@ -593,7 +594,7 @@ section{margin-bottom:26px}
   animation-play-state:paused;
   will-change:background-position;
 }
-#paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+#paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental):not(.estrato-manto-superior)::before{
   animation-name:nucleo-descenso-geologico;
   animation-duration:26s;
   animation-timing-function:linear;
@@ -603,11 +604,12 @@ section{margin-bottom:26px}
 }
 #paredEstrato.estrato-corteza.profundidad-viva.perforacion-activa,
 #paredEstrato.estrato-corteza-continental.profundidad-viva.perforacion-activa,
-#paredEstrato.profundidad-viva.perforacion-activa:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+#paredEstrato.estrato-manto-superior.profundidad-viva.perforacion-activa,
+#paredEstrato.profundidad-viva.perforacion-activa:not(.estrato-corteza):not(.estrato-corteza-continental):not(.estrato-manto-superior)::before{
   animation-play-state:running;
 }
 .aplicacion-pausada #paredEstrato.profundidad-viva,
-.aplicacion-pausada #paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+.aplicacion-pausada #paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental):not(.estrato-manto-superior)::before{
   animation-play-state:paused;
 }
 @media (prefers-reduced-motion:reduce){
@@ -618,7 +620,7 @@ section{margin-bottom:26px}
 .estrato-corteza,.estrato-corteza-continental{
   /* Textura real repetible; solo se aplica a la pared del estrato activo. */
   background-color:#121d20;
-  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=57');
+  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=58');
   background-repeat:repeat;
   background-position:center top;
   background-size:760px 760px;
@@ -635,7 +637,23 @@ section{margin-bottom:26px}
   background:radial-gradient(ellipse at center,transparent 34%,rgba(1,10,14,.08) 73%,rgba(1,7,10,.26) 100%);
 }
 .estrato-corteza i,.estrato-corteza-continental i{display:none}
-.estrato-manto-superior{background:#3f4336}.estrato-manto-superior::before{background:repeating-linear-gradient(171deg,rgba(185,173,121,.19) 0 2px,transparent 2px 13px),repeating-linear-gradient(12deg,transparent 0 26px,rgba(13,17,13,.37) 27px 30px,transparent 31px 49px)}.estrato-manto-superior::after{background:radial-gradient(ellipse at 22% 42%,rgba(176,184,92,.25),transparent 28%),radial-gradient(ellipse at 83% 60%,rgba(220,193,103,.15),transparent 34%)}
+.estrato-manto-superior{
+  /* Textura mineral de peridotito / olivino; solo se aplica al estrato Manto Superior. */
+  background-color:#1c2419;
+  background-image:url('../assets/textures/manto-superior-realista-1536.webp?v=58');
+  background-repeat:repeat;
+  background-position:center top;
+  background-size:760px 760px;
+}
+.estrato-manto-superior::before,
+.estrato-manto-superior::after{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+.estrato-manto-superior i{
+  display:none!important;
+}
 .estrato-zona-de-transicion{background:#71513a}.estrato-zona-de-transicion::before{background:repeating-linear-gradient(142deg,rgba(238,174,81,.2) 0 2px,transparent 2px 12px),repeating-linear-gradient(35deg,transparent 0 38px,rgba(32,20,14,.4) 39px 43px,transparent 44px 63px)}.estrato-zona-de-transicion::after{background:radial-gradient(circle at 30% 30%,rgba(252,205,109,.28) 0 2px,transparent 4px),radial-gradient(circle at 68% 65%,rgba(255,136,55,.25) 0 2px,transparent 5px)}
 .estrato-manto-inferior{background:#653b32}.estrato-manto-inferior::before{background:repeating-linear-gradient(164deg,rgba(226,117,71,.19) 0 2px,transparent 2px 14px),repeating-linear-gradient(8deg,transparent 0 24px,rgba(44,16,16,.45) 25px 28px,transparent 29px 47px)}.estrato-manto-inferior::after{background:radial-gradient(ellipse at 18% 70%,rgba(246,132,63,.23),transparent 34%),radial-gradient(ellipse at 79% 25%,rgba(209,77,55,.22),transparent 32%)}
 .estrato-nucleo-externo{background:#7a3529}.estrato-nucleo-externo::before{background:repeating-radial-gradient(ellipse at 50% 55%,rgba(255,198,94,.24) 0 2px,transparent 3px 16px),repeating-linear-gradient(22deg,transparent 0 21px,rgba(71,20,19,.34) 22px 25px,transparent 26px 42px)}.estrato-nucleo-externo::after{background:radial-gradient(ellipse at 35% 38%,rgba(255,190,73,.36),transparent 17%),radial-gradient(ellipse at 73% 72%,rgba(246,103,42,.3),transparent 20%);animation:conveccion-nucleo 5s ease-in-out infinite alternate}
