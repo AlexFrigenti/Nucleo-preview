@@ -576,10 +576,49 @@ section{margin-bottom:26px}
 /* La pared representa una sola formación: el pozo entra en ella y solo cambia
    al cruzar una frontera real de profundidad. El perfil inferior conserva el
    mapa completo de la Tierra. */
+/* ============ PROFUNDIDAD VIVA ============
+   Durante la extracción automática, la pared geológica asciende
+   en un bucle continuo de una baldosa (760px), creando la percepción
+   de descenso con la maquinaria fija. */
+@keyframes nucleo-descenso-geologico{
+  from{background-position:center top}
+  to{background-position:center -760px}
+}
+#paredEstrato.estrato-corteza.profundidad-viva,
+#paredEstrato.estrato-corteza-continental.profundidad-viva{
+  animation-name:nucleo-descenso-geologico;
+  animation-duration:26s;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+  animation-play-state:paused;
+  will-change:background-position;
+}
+#paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+  animation-name:nucleo-descenso-geologico;
+  animation-duration:26s;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+  animation-play-state:paused;
+  will-change:background-position;
+}
+#paredEstrato.estrato-corteza.profundidad-viva.perforacion-activa,
+#paredEstrato.estrato-corteza-continental.profundidad-viva.perforacion-activa,
+#paredEstrato.profundidad-viva.perforacion-activa:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+  animation-play-state:running;
+}
+.aplicacion-pausada #paredEstrato.profundidad-viva,
+.aplicacion-pausada #paredEstrato.profundidad-viva:not(.estrato-corteza):not(.estrato-corteza-continental)::before{
+  animation-play-state:paused;
+}
+@media (prefers-reduced-motion:reduce){
+  #paredEstrato.profundidad-viva,
+  #paredEstrato.profundidad-viva::before{animation:none!important}
+}
+
 .estrato-corteza,.estrato-corteza-continental{
   /* Textura real repetible; solo se aplica a la pared del estrato activo. */
   background-color:#121d20;
-  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=55');
+  background-image:url('../assets/textures/corteza-continental-realista-1536.webp?v=56');
   background-repeat:repeat;
   background-position:center top;
   background-size:760px 760px;
