@@ -1203,7 +1203,7 @@ cargar();
    VERSION: súbela en 1 cada vez que publiques cambios,
    y pon el mismo número en el archivo version.json.
    Así la app sabe cuándo hay algo nuevo publicado. */
-const VERSION = 55;
+const VERSION = 56;
 $('version').textContent = 'v' + VERSION;
 
 // Registra el service worker (copia offline). Cuando confirme que
@@ -1303,4 +1303,41 @@ function dispararMuestraDetectada(){
   document.addEventListener('visibilitychange', ()=>{
     document.documentElement.classList.toggle('aplicacion-pausada', document.hidden);
   });
+})();
+
+/* ============ PROFUNDIDAD VIVA ============
+   Sincroniza el estado de animacion de la pared geologica segun
+   la produccion automatica activa y visibilidad de la pagina. */
+(function activarProfundidadViva(){
+  let estadoAnterior = null;
+  let estratoAnterior = null;
+
+  function estratoActivo(pared){
+    return [...pared.classList].find(clase =>
+      clase.startsWith('estrato-') && clase !== 'estrato-transicion'
+    ) || null;
+  }
+
+  function sincronizar(){
+    const pared = document.getElementById('paredEstrato');
+    if(!pared || typeof porSegundo !== 'function') return;
+
+    const claseActiva = estratoActivo(pared);
+    const hayEstrato = Boolean(claseActiva);
+    const activa = hayEstrato && !document.hidden && porSegundo() > 0;
+
+    if(claseActiva !== estratoAnterior){
+      estratoAnterior = claseActiva;
+      pared.classList.toggle('profundidad-viva', hayEstrato);
+    }
+    if(activa !== estadoAnterior){
+      estadoAnterior = activa;
+      pared.classList.toggle('perforacion-activa', activa);
+    }
+  }
+
+  // La animacion la hace el compositor; comprobamos el estado 4 veces/s.
+  sincronizar();
+  setInterval(sincronizar, 250);
+  document.addEventListener('visibilitychange', sincronizar);
 })();

@@ -37,7 +37,7 @@ Funciona en cualquier navegador. En el iPhone se puede añadir a la pantalla de 
 
 1. Editar `index.html`, `styles/app.css`, `scripts/app.js` o `registro.js`.
 2. **Subir el número de versión en DOS sitios al mismo valor** (si no, no salta el aviso de actualización):
-   - En `index.html`: la línea `const VERSION = N;`
+   - En `scripts/app.js`: la línea `const VERSION = N;`
    - En `version.json`: `{ "v": N }`
 3. Publicar:
    ```bash
